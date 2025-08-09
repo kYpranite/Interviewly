@@ -10,7 +10,6 @@ function LanguageSelector({ selectedLanguage, onLanguageChange }) {
         { id: 'typescript', name: 'TypeScript' },
         { id: 'java', name: 'Java' },
         { id: 'cpp', name: 'C++' },
-        { id: 'c', name: 'C' },
     ];
 
     const handleLanguageSelect = (language) => {

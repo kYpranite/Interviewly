@@ -7,9 +7,41 @@
 }
 
 .output-header {
-    padding: 8px 16px;
     background-color: #2d2d30;
     border-bottom: 1px solid #464647;
+}
+
+.output-tabs {
+    display: flex;
+    align-items: center;
+}
+
+.output-tab {
+    background: none;
+    border: none;
+    color: #cccccc;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+    position: relative;
+}
+
+.output-tab:hover {
+    background-color: #3c3c3c;
+    color: #ffffff;
+}
+
+.output-tab.active {
+    color: #ffffff;
+    border-bottom-color: #007acc;
+    background-color: #1e1e1e;
+}
+
+.output-tab:focus {
+    outline: none;
 }
 
 .output-label {
