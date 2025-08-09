@@ -2,6 +2,7 @@ import Editor from "@monaco-editor/react";
 import React, { useState, useRef } from "react";
 import LanguageSelector from "./LanguageSelector";
 import OutputBox from "./OutputBox";
+import DEFAULT_CODE_TEMPLATES from "./defaultCodeTemplates";
 import "./CodeEditor.css";
 
 function CodeEditor() {
@@ -17,21 +18,12 @@ function CodeEditor() {
     };
     
     const getDefaultValue = (language) => {
-        const defaults = {
-            python: "print('Hello World!')",
-            javascript: "console.log('Hello World!');",
-            typescript: "console.log('Hello World!');",
-            java: "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello World!\");\n    }\n}",
-            cpp: "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"Hello World!\" << endl;\n    return 0;\n}",
-            c: "#include <stdio.h>\n\nint main() {\n    printf(\"Hello World!\\n\");\n    return 0;\n}",
-        };
-        return defaults[language] || "// Hello World!";
+        return DEFAULT_CODE_TEMPLATES[language] || "// Write your code here";
     };
 
-    const handleLanguageChange = (language) => {
-        setSelectedLanguage(language);
-        setValue(getDefaultValue(language));
-        setOutput(""); // Clear output when language changes
+    const handleLanguageChange = (newLanguage) => {
+        setSelectedLanguage(newLanguage);
+        setValue(getDefaultValue(newLanguage));
     };
 
     const handleReset = () => {
@@ -42,26 +34,22 @@ function CodeEditor() {
     const handleRun = async () => {
         setIsRunning(true);
         setOutput("Running...");
-        
-        // Simulate code execution - in a real app, you'd send this to a backend
-        setTimeout(() => {
-            try {
-                // Mock output based on language
-                const mockOutputs = {
-                    python: "Hello World!\n",
-                    javascript: "Hello World!\n",
-                    typescript: "Hello World!\n",
-                    java: "Hello World!\n",
-                    cpp: "Hello World!\n",
-                    c: "Hello World!\n",
-                };
-                
-                setOutput(mockOutputs[selectedLanguage] || "Code executed successfully!");
-            } catch (error) {
-                setOutput(`Error: ${error.message}`);
-            }
-            setIsRunning(false);
-        }, 1000);
+        try {
+            const code = editorRef.current.getValue();
+            const res = await fetch("/api/code/run", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    code,
+                    language: selectedLanguage
+                })
+            });
+            const result = await res.json();
+            setOutput(result?.run?.output || JSON.stringify(result));
+        } catch (error) {
+            setOutput(`Error: ${error.message}`);
+        }
+        setIsRunning(false);
     };
 
     return (
