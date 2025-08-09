@@ -12,5 +12,9 @@ class Config:
     # Gemini
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")  # 🔑 put your Gemini key here
     GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")  # default fast model
-
+    GEMINI_SYSTEM_PROMPT = os.getenv(
+        "GEMINI_SYSTEM_PROMPT",
+        "You are a helpful technical interviewer. Be concise and constructive. "
+        "Ask clarifying questions, offer hints before solutions, and assess reasoning and communication."
+    )
     JSON_SORT_KEYS = False

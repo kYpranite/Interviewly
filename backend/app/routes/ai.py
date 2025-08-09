@@ -8,25 +8,29 @@ def analyze():
     """
     Body:
     {
-      "messages": [{ "role": "user"|"ai", "content": "..." }, ...],
-      "system_prompt": "optional string",
-      "model": "optional model name"
+      "messages": [{ "role": "user"|"ai", "content": "..." }, ...]
     }
+    All Gemini settings (model, system prompt, temps) are server-side.
     """
     data = request.get_json(silent=True) or {}
     messages = data.get("messages") or []
-    system_prompt = data.get("system_prompt")
-    model_name = data.get("model")
 
     cfg = current_app.config
     api_key = cfg.get("GEMINI_API_KEY")
-    model = model_name or cfg.get("GEMINI_MODEL", "gemini-1.5-flash")
-
     if not api_key:
         return jsonify({"error": "Missing GEMINI_API_KEY on server"}), 500
 
     try:
-        text = analyze_with_gemini(api_key=api_key, model_name=model, messages=messages, system_prompt=system_prompt)
+        text = analyze_with_gemini(
+            api_key=api_key,
+            model_name=cfg.get("GEMINI_MODEL"),
+            system_prompt=cfg.get("GEMINI_SYSTEM_PROMPT"),
+            messages=messages,
+            temperature=cfg.get("GEMINI_TEMPERATURE"),
+            top_p=cfg.get("GEMINI_TOP_P"),
+            top_k=cfg.get("GEMINI_TOP_K"),
+            max_tokens=cfg.get("GEMINI_MAX_TOKENS"),
+        )
         return jsonify({"text": text})
     except Exception as e:
         return jsonify({"error": f"Gemini analyze failed: {e}"}), 500
