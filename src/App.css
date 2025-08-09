@@ -1,1 +1,25 @@
 /* App-specific styles */
+
+.app {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+}
+
+.app h1 {
+  margin: 0 0 20px 0;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 300;
+  text-align: center;
+}
+
+/* Reset body and html to match dark theme */
+body, html {
+  margin: 0;
+  padding: 0;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+}
