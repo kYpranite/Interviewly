@@ -10,6 +10,5 @@ LANGUAGE_VERSIONS = {
     "ruby": "3.2.2",
     "rust": "1.68.2",
     "php": "8.2.4",
-    "typescript": "5.0.3",
     # Add more languages and versions as needed
 }

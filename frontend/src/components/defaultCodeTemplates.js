@@ -14,14 +14,6 @@ const DEFAULT_CODE_TEMPLATES = {
         "    }",
         "}"
     ].join("\n"),
-    typescript: [
-        "class Solution {",
-        "    exampleMethod(param1: any): any {",
-        "        // Write your code here",
-        "        return param1;",
-        "    }",
-        "}"
-    ].join("\n"),
     java: [
         "public class Solution {",
         "    public Object exampleMethod(Object param1) {",

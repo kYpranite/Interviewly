@@ -7,7 +7,6 @@ function LanguageSelector({ selectedLanguage, onLanguageChange }) {
     const languages = [
         { id: 'python', name: 'Python 3' },
         { id: 'javascript', name: 'JavaScript' },
-        { id: 'typescript', name: 'TypeScript' },
         { id: 'java', name: 'Java' },
         { id: 'cpp', name: 'C++' },
     ];
