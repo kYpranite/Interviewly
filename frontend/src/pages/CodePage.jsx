@@ -48,13 +48,8 @@ export default function CodePage() {
         codeSubmission: currentCode,
         language: selectedLanguage,
         testResults: testResults,
-        // Provide full question context so the evaluator can use prompt, constraints, and official solution
-        question: {
-          ...question,
-          optimal_time_complexity: question?.optimal_time_complexity || "O(n)",
-          optimal_space_complexity: question?.optimal_space_complexity || "O(1)",
-          solution: question?.solution || "No solution provided"
-        }
+        // Send the question as-is; backend will handle any missing fields with defaults
+        question
       });
 
       console.log("Evaluation completed:", evaluationResponse);
