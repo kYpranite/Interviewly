@@ -1,12 +1,12 @@
 import Editor from "@monaco-editor/react";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { sendToAI, updateAIContext } from "../api";
 import { getClientId } from "../clientId";
 import LanguageSelector from "./LanguageSelector";
 import OutputBox from "./OutputBox";
 import "./CodeEditor.css";
 
-function CodeEditor({question}) {
+const CodeEditor = forwardRef(({ question, onLanguageChange }, ref) => {
     const editorRef = useRef();
     const [selectedLanguage, setSelectedLanguage] = useState("python");
     const [value, setValue] = useState("");
@@ -15,6 +15,14 @@ function CodeEditor({question}) {
     const [activeMode, setActiveMode] = useState("code");
     const lastSentRef = useRef("");
     const clientIdRef = useRef(getClientId());
+
+    // Expose methods to parent component via ref
+    useImperativeHandle(ref, () => ({
+        getValue: () => editorRef.current?.getValue?.() || value || "",
+        getLanguage: () => selectedLanguage,
+        setValue: (newValue) => setValue(newValue),
+        reset: () => handleReset()
+    }));
 
     // Convert literal escape sequences ("\n", "\r\n", "\t") into actual characters
     const unescapeTemplate = (s) => {
@@ -56,6 +64,7 @@ function CodeEditor({question}) {
     const handleLanguageChange = (newLanguage) => {
         setSelectedLanguage(newLanguage);
         setValue(getDefaultValue(newLanguage));
+        onLanguageChange?.(newLanguage);
     };
 
     const handleModeChange = (mode) => {
@@ -218,6 +227,6 @@ function CodeEditor({question}) {
             )}
         </div>
     );
-}
+});
 
 export default CodeEditor;

@@ -3,6 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from .config import Config
 from .routes import api_bp, ai_bp, code_bp
+from .routes.evaluation import evaluation_bp
 
 def create_app():
     app = Flask(__name__)
@@ -13,4 +14,5 @@ def create_app():
     app.register_blueprint(api_bp)
     app.register_blueprint(ai_bp)
     app.register_blueprint(code_bp)
+    app.register_blueprint(evaluation_bp)
     return app

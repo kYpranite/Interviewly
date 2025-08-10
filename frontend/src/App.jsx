@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Dashboard from "./pages/Dashboard";
 import CodePage from "./pages/CodePage";
+import ResultsPage from "./pages/ResultsPage";
 import Login from "./pages/Login";               // <-- missing import
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -25,6 +26,15 @@ export default function App() {
         element={
           <ProtectedRoute>
             <CodePage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/results"
+        element={
+          <ProtectedRoute>
+            <ResultsPage />
           </ProtectedRoute>
         }
       />
