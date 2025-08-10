@@ -105,7 +105,7 @@ export default function CodePage() {
       id: session.id,
       date: date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }),
       difficulty,
-      score: session.finalScore,
+      score: Math.round(session.finalScore),
       durationMin,
       result: session.finalScore >= 70 ? "Pass" : "Improve",
       session // Keep reference to full session data
@@ -406,7 +406,7 @@ export default function CodePage() {
           <div className="card__head">
             <div className="card__title">
               <FontAwesomeIcon icon={faClockRotateLeft} className="mr-8" size="sm" />
-              Past problems
+              Past sessions
             </div>
             <div className="card__desc">Recent attempts and results</div>
           </div>
