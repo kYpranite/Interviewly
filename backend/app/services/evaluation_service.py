@@ -15,10 +15,10 @@ Instructions:
 8. Do not assume O(1) auxiliary space is always optimal. Many optimal-time solutions trade O(n) space for O(n) time (e.g., using a hash map for Two Sum). Report the actual auxiliary space used by the code.
 
 Format:
-{
-  "time_complexity": "O(...)",
-  "space_complexity": "O(...)"
-}
+{{
+    "time_complexity": "O(...)",
+    "space_complexity": "O(...)"
+}}
 
 Function:
 ```{language}
