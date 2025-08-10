@@ -499,7 +499,7 @@ export default function ResultsPage({
               </div>
               
               <div className="score-details">
-                <p>Avg Criteria: 4/5</p>
+                <p>Avg Criteria: {evaluation?.criteria ? (evaluation.criteria.reduce((sum, criterion) => sum + criterion.score, 0) / evaluation.criteria.length).toFixed(1) : 0}/5.0</p>
                 <div className="action-buttons">
                   <button className="btn btn--ghost" onClick={handleViewTranscript}>View transcript</button>
                   <button className="btn btn--ghost" onClick={handleDownloadJSON}>Download JSON</button>
