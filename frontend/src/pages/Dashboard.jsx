@@ -201,7 +201,7 @@ export default function CodePage() {
                     <FontAwesomeIcon icon={faGear} className="mr-4" size="sm" />
                     Edit settings
                   </button>
-                  <Link to={interviewLink} className="btn btn--cta">
+                  <Link to="/code" className="btn btn--cta">
                     <FontAwesomeIcon icon={faWandMagicSparkles} className="mr-4" size="sm" />
                     Generate interview
                   </Link>

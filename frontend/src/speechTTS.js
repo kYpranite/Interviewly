@@ -1,5 +1,8 @@
 import { getSpeechToken } from './api.js';
 
+// Centralize chosen voice for reuse in SSML
+const VOICE_NAME = 'en-US-DavisNeural';
+
 let synthesizer = null;
 let audioDest = null; // Speaker destination we can close to stop playback immediately
 // Track the currently active speech so we can cancel/avoid stale callbacks
@@ -10,7 +13,7 @@ export async function initSynthesizer() {
   const data = await getSpeechToken();
   const speechConfig = window.SpeechSDK.SpeechConfig.fromAuthorizationToken(data.token, data.region);
   // Voice + compressed output for smooth streaming to an <audio> element we control
-  speechConfig.speechSynthesisVoiceName = 'en-US-DavisNeural';
+  speechConfig.speechSynthesisVoiceName = VOICE_NAME;
   // Use MP3 which is widely reliable with default speaker output
   speechConfig.speechSynthesisOutputFormat = window.SpeechSDK.SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3;
   // Use default speaker output for reliable audible playback; we drive the UI timing ourselves
@@ -21,7 +24,36 @@ export async function initSynthesizer() {
   return synthesizer;
 }
 
-export async function speakText(text, { onStart, onEnd, onError } = {}) {
+// Convert a numeric multiplier (e.g., 1.25) into a prosody rate string (e.g., "+25%")
+function toProsodyRate(multiplier) {
+  const m = Number(multiplier);
+  if (!isFinite(m) || m === 1 || m <= 0) return '0%';
+  const pct = Math.round((m - 1) * 100);
+  return (pct >= 0 ? `+${pct}%` : `${pct}%`);
+}
+
+function escapeXml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function buildSsmlFromText(text, { rate = 1, voice = VOICE_NAME } = {}) {
+  // If caller already passed SSML, don't wrap or modify it
+  const trimmed = String(text).trim();
+  if (trimmed.startsWith('<speak')) return trimmed;
+  const rateStr = toProsodyRate(rate);
+  const content = escapeXml(text);
+  return `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="en-US">` +
+    `<voice name="${voice}"><prosody rate="${rateStr}">${content}</prosody></voice>` +
+    `</speak>`;
+}
+
+export async function speakText(text, { rate = 1.3, onStart, onEnd, onError } = {}) {
   if (!text) return;
   try {
     const synth = await initSynthesizer();
@@ -51,8 +83,10 @@ export async function speakText(text, { onStart, onEnd, onError } = {}) {
     };
     synth.synthesisCompleted = () => { /* no-op; handled in result callback */ };
 
-    synth.speakTextAsync(
-      text,
+    // Always speak via SSML so we can control rate; pass-through if text already SSML
+    const ssml = buildSsmlFromText(text, { rate, voice: VOICE_NAME });
+    synth.speakSsmlAsync(
+      ssml,
       (result) => {
         if (current?.id !== id || current?.settled) return;
         try {
