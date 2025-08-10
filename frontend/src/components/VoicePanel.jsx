@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STTManager } from '../speechSTT';
-import { speakText } from '../speechTTS';
+import { speakText, stopSpeaking } from '../speechTTS';
 import { sendToAI } from '../api';
 
 // Lightweight styles for testing. Easy to remove.
@@ -43,13 +43,27 @@ export default function VoicePanel({ onAiSpeakingChange }) {
 	const [lang, setLang] = useState('en-US');
 	const [busy, setBusy] = useState(false);
 
+	// A generation counter for AI TTS so partial speech won't resume after interrupt
+	const speakGenRef = useRef(0);
+
 		const turnsRef = useRef(turns);
 		useEffect(() => { turnsRef.current = turns; }, [turns]);
 
 		useEffect(() => {
 			stt.current = new STTManager();
 			stt.current.onRunningChange = setRunning;
-			stt.current.onPartial = setPartial;
+			// Do not use raw speechStart event to avoid echo false-positives
+			stt.current.onSpeechStart = null;
+			stt.current.onPartial = async (text) => {
+				// When the user starts talking and AI is talking, stop AI immediately and advance generation
+				if (text && text.trim().length > 0) {
+					// Interrupt any ongoing TTS; mark a new generation so previous won't resume
+					speakGenRef.current += 1;
+					onAiSpeakingChange?.(false);
+					await stopSpeaking();
+				}
+				setPartial(text);
+			};
 			stt.current.onFinalResult = async (text) => {
 				// Add user turn
 				setTurns((t) => [...t, { role: 'user', content: text }]);
@@ -58,20 +72,31 @@ export default function VoicePanel({ onAiSpeakingChange }) {
 				try {
 					setBusy(true);
 					const hist = turnsRef.current;
-							const { text: aiText } = await sendToAI([...hist, { role: 'user', content: text }]);
-							const out = (aiText || '').trim();
-							setTurns((t) => [...t, { role: 'ai', content: out }]);
-							if (out) {
-											await new Promise((resolve) => {
-												speakText(out, {
-													onStart: () => { onAiSpeakingChange?.(true); },
-													onEnd: () => { onAiSpeakingChange?.(false); resolve(); },
-													onError: () => { onAiSpeakingChange?.(false); resolve(); },
-												});
-											});
-							} else {
-								onAiSpeakingChange?.(false);
-							}
+						const { text: aiText } = await sendToAI([...hist, { role: 'user', content: text }]);
+						const out = (aiText || '').trim();
+						setTurns((t) => [...t, { role: 'ai', content: out }]);
+						if (out) {
+							// Capture generation at time of start; if user speaks again we won't resume
+							const myGen = ++speakGenRef.current;
+							await new Promise((resolve) => {
+								speakText(out, {
+									onStart: () => {
+										// Only mark speaking if still same generation
+										if (speakGenRef.current === myGen) onAiSpeakingChange?.(true);
+									},
+									onEnd: () => {
+										if (speakGenRef.current === myGen) onAiSpeakingChange?.(false);
+										resolve();
+									},
+									onError: () => {
+										if (speakGenRef.current === myGen) onAiSpeakingChange?.(false);
+										resolve();
+									},
+								});
+							});
+						} else {
+							onAiSpeakingChange?.(false);
+						}
 				} catch (e) {
 					console.error('AI or TTS error', e);
 				} finally {

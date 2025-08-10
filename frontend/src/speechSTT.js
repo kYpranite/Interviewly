@@ -9,6 +9,8 @@ export class STTManager {
     this.onFinalResult = null; // callback(text) when a final segment is recognized
     this.onRunningChange = null; // callback(boolean)
     this.onPartial = null; // callback(text)
+  this.onSpeechStart = null; // callback()
+  this.onSpeechEnd = null; // callback()
   }
 
   async createRecognizer(language) {
@@ -34,6 +36,11 @@ export class STTManager {
       }
     };
 
+    // Fire as soon as the SDK detects speech onset
+    rec.speechStartDetected = () => {
+      try { this.onSpeechStart?.(); } catch (_) {}
+    };
+
     rec.recognized = (s, e) => {
       if (!e || !e.result) return;
       const reason = e.result.reason;
@@ -50,14 +57,20 @@ export class STTManager {
     rec.sessionStopped = () => {
       this.safeTeardownFromEvent('stopped');
     };
+
+    rec.speechEndDetected = () => {
+      try { this.onSpeechEnd?.(); } catch (_) {}
+    };
   }
 
   detach(rec) {
     if (!rec) return;
     rec.recognizing = null;
+    rec.speechStartDetected = null;
     rec.recognized = null;
     rec.canceled = null;
     rec.sessionStopped = null;
+    rec.speechEndDetected = null;
   }
 
   safeTeardownFromEvent() {
