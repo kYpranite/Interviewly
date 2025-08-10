@@ -245,7 +245,7 @@ You will be given:
 Your task: Score the candidate 1–5 in each category (1 = Not Demonstrated, 5 = Excellent) according to the embedded rubric.
 Be critical and brutally honest. Avoid vague praise. Back up every score with direct evidence from transcript, code, or tests.
 
-IMPORTANT: For the Time/Space Complexity category, judge against realistic optimal trade-offs rather than assuming O(1) space when that would significantly worsen time complexity (e.g., Two Sum optimal time uses O(n) extra space). Use the following tier rankings to judge the gap between optimal and actual:
+IMPORTANT: For the Time/Space Complexity category, judge against realistic optimal trade-offs rather than assuming O(1) space when that would significantly worsen time complexity. For example, in Two Sum the optimal-time approach uses O(n) extra space; do NOT penalize O(n) space there. If the only way to reduce space (e.g., to O(1)) requires worsening time by a tier or more (e.g., from O(n) to O(n log n) or O(n^2)), treat the O(n)-space solution as optimal for scoring. Use the following tier rankings to judge the gap between optimal and actual:
 Time Complexity Tier (best to worst):
 O(1) > O(log n) > O(n) > O(n log n) > O(n^2) > O(n^3) > O(2^n) > O(n!)
 Space Complexity Tier (best to worst):
@@ -258,16 +258,18 @@ HARSH Scoring rules for Time/Space Complexity (with trade-off awareness):
 - Score 2: Either is **three tiers worse** than optimal, OR one is two tiers worse and the other is worse than that.
 - Score 1: Either is **four or more tiers worse**, or is at the exponential/factorial range (O(2^n), O(n!)) without clear necessity.
 
-In short: quadratic when optimal is linear is already a serious penalty; cubic when optimal is quadratic is also serious. Prefer solutions that achieve near-optimal time even if they use O(n) extra space when that is the standard optimal trade-off.
+In short: quadratic when optimal is linear is already a serious penalty; cubic when optimal is quadratic is also serious. Prefer solutions that achieve near-optimal time even if they use O(n) extra space when that is the standard optimal trade-off. Do not punish candidates for O(n) time and O(n) auxiliary space when the only way to save space would worsen time (e.g., hash-map Two Sum). In such cases, consider the O(n)-space solution as meeting optimal expectations for scoring.
 
 RUBRIC:
 
-1. Communication
-5: Clearly articulates each step of thought process, restates problem, explains approach, confirms understanding, adapts explanations to feedback.
-4: Explains approach and reasoning with minor lapses; restates most requirements; generally understandable.
-3: Provides partial explanations; skips some reasoning steps; understanding is evident but not always verbalized.
-2: Disorganized explanation; minimal reasoning; leaves interviewer to guess rationale.
-1: Does not communicate thought process or approach at all.
+Communication and Clarity must be judged primarily from the transcript (what the candidate actually says). Code should only be used as a minor, tie-breaker signal in these two categories.
+
+1. Communication (spoken-first)
+5: Consistently verbalizes thought process; restates problem; explains approach and key decisions; asks/answers clarifying questions; adapts to feedback. Code references only to support explanations.
+4: Explains approach and rationale with minor lapses; restates most requirements; generally interactive and understandable.
+3: Partial explanations; skips reasoning steps; understanding present but not consistently verbalized.
+2: Disorganized or minimal reasoning; interviewer must infer rationale.
+1: Does not communicate thought process or approach.
 
 2. Understanding
 5: Fully grasps problem requirements, constraints, and edge cases; proactively clarifies ambiguities; considers trade-offs.
@@ -276,12 +278,12 @@ RUBRIC:
 2: Misinterprets problem or constraints; solves wrong problem; needs major hints.
 1: Shows no understanding of the problem.
 
-3. Clarity
-5: Explains ideas in well-structured, logical sequence; concise; uses concrete examples; avoids jargon misuse.
-4: Mostly clear and logical; minor digressions or slightly confusing points.
-3: Some structure present but explanations wander; noticeable filler; occasional confusing statements.
-2: Hard to follow; significant repetition or vagueness; lacks logical flow.
-1: Incoherent explanation with no discernible structure.
+3. Clarity (spoken-first)
+5: Clear, well-structured verbal explanations; concise; uses concrete examples; correct terminology. Code clarity considered only minimally here.
+4: Mostly clear and logical with minor digressions or ambiguity.
+3: Some structure but explanations wander; filler or occasional confusion.
+2: Hard to follow; frequent vagueness or poor flow.
+1: Incoherent or no discernible structure.
 
 4. Code Readability
 5: Code is clean, well-structured, idiomatic; good naming; consistent formatting; helpful comments for complex logic.

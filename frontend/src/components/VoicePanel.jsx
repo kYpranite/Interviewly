@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STTManager } from '../speechSTT';
 import { speakText, stopSpeaking } from '../speechTTS';
-import { sendToAI, updateAIContext } from '../api';
+import { sendToAI } from '../api';
 import { getClientId } from '../clientId';
 
 // Lightweight styles for testing. Easy to remove.
@@ -53,17 +53,7 @@ export default function VoicePanel({ onAiSpeakingChange, onTranscriptChange, que
 		onTranscriptChange?.(turns);
 	}, [turns, onTranscriptChange]);
 
-	// Ensure interviewer has the current question in system prompt ASAP
-	useEffect(() => {
-		(async () => {
-			try {
-				if (!question) return;
-				await updateAIContext({ code: '', language: 'unknown', question }, getClientId());
-			} catch (_) {
-				// ignore background context sync errors
-			}
-		})();
-	}, [question]);
+	// No longer responsible for sending the initial question; CodeEditor manages context.
 
 		const turnsRef = useRef(turns);
 		useEffect(() => { turnsRef.current = turns; }, [turns]);
