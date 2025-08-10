@@ -126,10 +126,13 @@ const CodeEditor = forwardRef(({ question, onLanguageChange }, ref) => {
                 lastSentRef.current = trimmed;
 
                 // Update server-side context store
-                await updateAIContext({ code, language: selectedLanguage }, clientIdRef.current);
+                await updateAIContext({ code, language: selectedLanguage, question }, clientIdRef.current);
 
                 // Optionally nudge Gemini with a lightweight ping so the interviewer is aware
-                const msg = `SYSTEM: This is the user's current code: (language=${selectedLanguage}).`;
+                const title = question?.title || '';
+                const fn = question?.function || '';
+                const args = Array.isArray(question?.args) ? question.args.join(', ') : '';
+                const msg = `SYSTEM: Context sync. Current question: ${title} — ${fn}(${args}). Current code language=${selectedLanguage}.`;
                 await sendToAI([{ role: "user", content: msg }], clientIdRef.current);
             } catch (_) {
                 // ignore errors; this is background context syncing
