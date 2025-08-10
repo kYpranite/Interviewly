@@ -46,12 +46,12 @@ const CodeEditor = forwardRef(({ question, onLanguageChange }, ref) => {
             colors: {
                 'editor.background': '#0d0f12',
                 'editorGutter.background': '#0d0f12',
-                'editorLineNumber.foreground': '#6b7385',
-                'editorLineNumber.activeForeground': '#a7b1c9',
-                'editor.selectionBackground': '#20304a',
-                'editor.inactiveSelectionBackground': '#1a263b',
-                'editor.lineHighlightBackground': '#11131a',
-                'editorCursor.foreground': '#d4d4d4',
+                'editorLineNumber.foreground': '#aab2c5',
+                'editorLineNumber.activeForeground': '#e6eaf2',
+                'editor.selectionBackground': '#23304a',
+                'editor.inactiveSelectionBackground': '#1a253a',
+                'editor.lineHighlightBackground': '#0f1117',
+                'editorCursor.foreground': '#ffffff',
             },
         });
     };
@@ -179,16 +179,16 @@ const CodeEditor = forwardRef(({ question, onLanguageChange }, ref) => {
                     selectedLanguage={selectedLanguage}
                     onLanguageChange={handleLanguageChange}
                 />
-                <div className="action-buttons">
+        <div className="action-buttons">
                     <button 
-                        className="btn btn--ghost"
+            className="btn btn--sm btn--muted"
                         onClick={handleReset}
                         type="button"
                     >
                         Reset
                     </button>
                     <button 
-                        className="btn btn--cta"
+            className={`btn btn--sm btn--muted`}
                         onClick={handleRun}
                         disabled={isRunning}
                         type="button"
