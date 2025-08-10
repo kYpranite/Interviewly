@@ -52,7 +52,8 @@ export default function CodePage() {
         language: selectedLanguage,
         testResults: testResults,
         // Send the question as-is; backend will handle any missing fields with defaults
-        question
+        question,
+        interviewStartTime: interviewStartTime.current
       });
 
       console.log("Evaluation completed:", evaluationResponse);
@@ -61,14 +62,15 @@ export default function CodePage() {
       navigate("/results", { 
         state: { 
           evaluation: evaluationResponse.evaluation,
-          interviewStartTime: evaluationResponse.interview_start_time,
+          interviewStartTime: interviewStartTime.current, // Use the actual start time from ref
           evaluatedAt: evaluationResponse.evaluated_at,
           questionId: question?.id,
           question_title: question?.title || "Unknown Problem",
           language: selectedLanguage,
           testResults: testResults,
           interviewDuration: (45 * 60 - secondsLeft) / 60, // in minutes
-          code: currentCode
+          code: currentCode,
+          transcript: transcript
         } 
       });
       

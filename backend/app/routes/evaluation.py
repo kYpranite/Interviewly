@@ -59,7 +59,6 @@ def evaluate_interview_endpoint():
         
         # Parse interview start time and get current evaluation time
         current_time = datetime.now()
-        evaluation_timestamp = current_time.isoformat()
         evaluation_formatted = current_time.strftime("%Y-%m-%d %H:%M:%S")
         
         # Parse the interview start time
