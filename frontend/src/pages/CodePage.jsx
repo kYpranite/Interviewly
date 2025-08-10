@@ -93,7 +93,7 @@ export default function CodePage() {
         return () => {
             alive = false;
         };
-    }, [getRandomQuestion]);
+    }, []);
 
     useEffect(() => {
         const id = setInterval(
