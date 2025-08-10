@@ -22,7 +22,7 @@ export default function CodePage() {
       const interviewTranscript = transcript;
       
       // Here you can do something with the transcript, such as:
-      interviewTranscript = JSON.stringify(interviewTranscript)
+      const jsonTranscript = JSON.stringify(interviewTranscript)
       console.log("Interview transcript:", interviewTranscript);
       
       
