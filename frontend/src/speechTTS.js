@@ -10,7 +10,7 @@ export async function initSynthesizer() {
   const data = await getSpeechToken();
   const speechConfig = window.SpeechSDK.SpeechConfig.fromAuthorizationToken(data.token, data.region);
   // Voice + compressed output for smooth streaming to an <audio> element we control
-  speechConfig.speechSynthesisVoiceName = 'en-US-JennyNeural';
+  speechConfig.speechSynthesisVoiceName = 'en-US-DavisNeural';
   // Use MP3 which is widely reliable with default speaker output
   speechConfig.speechSynthesisOutputFormat = window.SpeechSDK.SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3;
   // Use default speaker output for reliable audible playback; we drive the UI timing ourselves
