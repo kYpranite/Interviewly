@@ -35,6 +35,8 @@
 }
 .close-btn:hover { background: #0c1016; }
 
+/* photo button removed; always using fixed avatar URL */
+
 .speaking-pill {
   position: absolute;
   top: 10px; left: 12px;
