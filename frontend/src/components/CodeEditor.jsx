@@ -96,7 +96,7 @@ function CodeEditor({question}) {
             <div className="editor-header">
                 <div className="mode-tabs" role="tablist">
                     <button className="mode-tab active" type="button">Code</button>
-                    <button className="mode-tab" type="button" disabled>Notebook</button>
+                    <button className="mode-tab" type="button">Notebook</button>
                 </div>
                 <LanguageSelector 
                     selectedLanguage={selectedLanguage}

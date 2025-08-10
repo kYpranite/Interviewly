@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import CodeEditor from "../components/CodeEditor";
 import ProblemPanel from "../components/ProblemPanel";
@@ -9,9 +10,25 @@ import "./code.css";
 
 export default function CodePage() {
   const { getRandomQuestion } = useQuestions();
+  const navigate = useNavigate();
   const [question, setQuestion] = useState(null);
   const [secondsLeft, setSecondsLeft] = useState(45 * 60); // 45 minutes
   const [aiSpeaking, setAiSpeaking] = useState(false);
+  const [transcript, setTranscript] = useState([]);
+
+  const handleEndInterview = () => {
+    if (window.confirm("Are you sure you want to end the interview?")) {
+      // Save the entire transcript to a variable
+      const interviewTranscript = transcript;
+      
+      // Here you can do something with the transcript, such as:
+      interviewTranscript = JSON.stringify(interviewTranscript)
+      console.log("Interview transcript:", interviewTranscript);
+      
+      
+      navigate("/");
+    }
+  };
 
   useEffect(() => {
     let alive = true;
@@ -31,6 +48,13 @@ export default function CodePage() {
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    if (secondsLeft === 0) {
+      alert("Time's up! The interview has ended.");
+      navigate("/");
+    }
+  }, [secondsLeft, navigate]);
+
   const timeDisplay = useMemo(() => {
     const m = Math.floor(secondsLeft / 60).toString().padStart(2, "0");
     const s = (secondsLeft % 60).toString().padStart(2, "0");
@@ -45,7 +69,16 @@ export default function CodePage() {
       <main className="content">
         <header className="page-header">
           <h1 className="page-title">Technical Interview</h1>
-          <span className="timer" aria-live="polite">{timeDisplay}</span>
+          <div className="header-controls">
+            <span className="timer" aria-live="polite">{timeDisplay}</span>
+            <button 
+              className="end-interview-btn" 
+              onClick={handleEndInterview}
+              aria-label="End interview"
+            >
+              End Interview
+            </button>
+          </div>
         </header>
 
         <div className="grid">
@@ -54,7 +87,10 @@ export default function CodePage() {
           </aside>
           <section className="right">
             <div style={{ marginBottom: "0.75rem" }}>
-              <VoicePanel onAiSpeakingChange={setAiSpeaking} />
+              <VoicePanel 
+                onAiSpeakingChange={setAiSpeaking} 
+                onTranscriptChange={setTranscript}
+              />
             </div>
             {question ? (
               <CodeEditor question={question} />

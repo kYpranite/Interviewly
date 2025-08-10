@@ -34,7 +34,7 @@ const styles = {
 	label: { fontWeight: 600 }
 };
 
-export default function VoicePanel({ onAiSpeakingChange }) {
+export default function VoicePanel({ onAiSpeakingChange, onTranscriptChange }) {
 	const stt = useRef(null);
 	const [running, setRunning] = useState(false);
 	const [partial, setPartial] = useState('');
@@ -45,6 +45,11 @@ export default function VoicePanel({ onAiSpeakingChange }) {
 
 	// A generation counter for AI TTS so partial speech won't resume after interrupt
 	const speakGenRef = useRef(0);
+
+	// Notify parent component when transcript changes
+	useEffect(() => {
+		onTranscriptChange?.(turns);
+	}, [turns, onTranscriptChange]);
 
 		const turnsRef = useRef(turns);
 		useEffect(() => { turnsRef.current = turns; }, [turns]);

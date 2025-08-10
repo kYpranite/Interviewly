@@ -106,6 +106,53 @@
 
 /* Monaco theming handled via custom theme in CodeEditor.jsx */
 
+/* Notebook styles */
+.notebook-wrapper {
+    background-color: #0b0d11;
+    padding: 0;
+}
+
+.nb-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.nb-btn:active {
+    transform: translateY(0);
+}
+
+.nb-cell:hover {
+    border-color: #2563eb;
+}
+
+.cell-controls button:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.cell-content textarea:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.cell-content textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.cell-content textarea::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 4px;
+}
+
+.cell-content textarea::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius: 4px;
+}
+
+.cell-content textarea::-webkit-scrollbar-thumb:hover {
+    background: #505050;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .editor-header {
