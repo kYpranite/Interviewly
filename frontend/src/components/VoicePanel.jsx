@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STTManager } from '../speechSTT';
 import { speakText, stopSpeaking } from '../speechTTS';
 import { sendToAI } from '../api';
+import { getClientId } from '../clientId';
 
 // Lightweight styles for testing. Easy to remove.
 const styles = {
@@ -77,7 +78,7 @@ export default function VoicePanel({ onAiSpeakingChange, onTranscriptChange }) {
 				try {
 					setBusy(true);
 					const hist = turnsRef.current;
-						const { text: aiText } = await sendToAI([...hist, { role: 'user', content: text }]);
+						const { text: aiText } = await sendToAI([...hist, { role: 'user', content: text }], getClientId());
 						const out = (aiText || '').trim();
 						setTurns((t) => [...t, { role: 'ai', content: out }]);
 						if (out) {

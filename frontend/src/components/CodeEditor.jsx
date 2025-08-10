@@ -1,5 +1,7 @@
 import Editor from "@monaco-editor/react";
 import React, { useState, useRef, useEffect } from "react";
+import { sendToAI, updateAIContext } from "../api";
+import { getClientId } from "../clientId";
 import LanguageSelector from "./LanguageSelector";
 import OutputBox from "./OutputBox";
 import "./CodeEditor.css";
@@ -11,6 +13,8 @@ function CodeEditor({question}) {
     const [output, setOutput] = useState("");
     const [isRunning, setIsRunning] = useState(false);
     const [activeMode, setActiveMode] = useState("code");
+    const lastSentRef = useRef("");
+    const clientIdRef = useRef(getClientId());
 
     // Convert literal escape sequences ("\n", "\r\n", "\t") into actual characters
     const unescapeTemplate = (s) => {
@@ -94,6 +98,43 @@ function CodeEditor({question}) {
     useEffect(() => {
         setValue(getDefaultValue(selectedLanguage));
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [question?.id, selectedLanguage]);
+
+    // Periodically send current code to Gemini (every 30s) to provide context
+    useEffect(() => {
+    // Ensure a stable per-tab client id (session-based)
+    clientIdRef.current = getClientId();
+        let intervalId;
+
+        const sendContext = async () => {
+            try {
+                const code = editorRef.current?.getValue?.() ?? value ?? "";
+                const trimmed = (code || "").trim();
+                if (!trimmed) return; // don't send empty
+
+                // Avoid resending identical content
+                if (lastSentRef.current === trimmed) return;
+                lastSentRef.current = trimmed;
+
+                // Update server-side context store
+                await updateAIContext({ code, language: selectedLanguage }, clientIdRef.current);
+
+                // Optionally nudge Gemini with a lightweight ping so the interviewer is aware
+                const msg = `SYSTEM: This is the user's current code: (language=${selectedLanguage}).`;
+                await sendToAI([{ role: "user", content: msg }], clientIdRef.current);
+            } catch (_) {
+                // ignore errors; this is background context syncing
+            }
+        };
+
+        // Send once immediately, then every 30s
+        sendContext();
+        intervalId = setInterval(sendContext, 30000);
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+        // Recreate interval if the question or language changes (but not on every keystroke)
     }, [question?.id, selectedLanguage]);
 
     return (
