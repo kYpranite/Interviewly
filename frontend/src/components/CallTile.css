@@ -10,12 +10,13 @@
 .call-card {
   position: relative;
   width: 320px;
-  background: #1b1f26;
-  border: 2px solid #2b3442;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(139, 179, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 12px;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
   padding: 18px 18px 16px;
-  color: #e7ebf3;
+  color: #ffffff;
   user-select: none;
 }
 

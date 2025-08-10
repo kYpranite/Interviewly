@@ -245,20 +245,20 @@ You will be given:
 Your task: Score the candidate 1–5 in each category (1 = Not Demonstrated, 5 = Excellent) according to the embedded rubric.
 Be critical and brutally honest. Avoid vague praise. Back up every score with direct evidence from transcript, code, or tests.
 
-IMPORTANT: For the Time/Space Complexity category, judge against realistic optimal trade-offs rather than assuming O(1) space when that would significantly worsen time complexity. For example, in Two Sum the optimal-time approach uses O(n) extra space; do NOT penalize O(n) space there. If the only way to reduce space (e.g., to O(1)) requires worsening time by a tier or more (e.g., from O(n) to O(n log n) or O(n^2)), treat the O(n)-space solution as optimal for scoring. Use the following tier rankings to judge the gap between optimal and actual:
+IMPORTANT: For the Time/Space Complexity category, judge against realistic optimal trade-offs rather than assuming O(1) space when that would significantly worsen time complexity. For example, in Two Sum the optimal-time approach uses O(n) extra space; do NOT penalize O(n) space there. If the only way to reduce space (e.g., to O(1)) requires worsening time by a tier or more (e.g., from O(n) to O(n log n) or O(n^2)), treat the O(n)-space solution as meeting optimal expectations. In these trade-off scenarios, award 5/5 when time is optimal even if space is one tier worse. Use the following tier rankings to judge the gap between optimal and actual:
 Time Complexity Tier (best to worst):
 O(1) > O(log n) > O(n) > O(n log n) > O(n^2) > O(n^3) > O(2^n) > O(n!)
 Space Complexity Tier (best to worst):
 O(1) > O(log n) > O(n) > O(n log n) > O(n^2) > O(2^n)
 
 HARSH Scoring rules for Time/Space Complexity (with trade-off awareness):
-- Score 5: Both time and space match the optimal tier exactly.
-- Score 4: Both are at most **one tier worse** than optimal. (e.g., O(n) → O(n log n) is fine, but O(n) → O(n²) is too slow.)
+- Score 5: Time matches the optimal tier AND (a) space matches optimal, OR (b) space is exactly one tier worse but is the standard/necessary trade-off to achieve optimal time (e.g., hashing for Two Sum). In such cases, treat as meeting optimal expectations.
+- Score 4: Both time and space are at most **one tier worse** than optimal without a clear, standard trade-off justification.
 - Score 3: One is at most one tier worse and the other is **two tiers worse**, OR both are **two tiers worse**.
 - Score 2: Either is **three tiers worse** than optimal, OR one is two tiers worse and the other is worse than that.
 - Score 1: Either is **four or more tiers worse**, or is at the exponential/factorial range (O(2^n), O(n!)) without clear necessity.
 
-In short: quadratic when optimal is linear is already a serious penalty; cubic when optimal is quadratic is also serious. Prefer solutions that achieve near-optimal time even if they use O(n) extra space when that is the standard optimal trade-off. Do not punish candidates for O(n) time and O(n) auxiliary space when the only way to save space would worsen time (e.g., hash-map Two Sum). In such cases, consider the O(n)-space solution as meeting optimal expectations for scoring.
+In short: quadratic when optimal is linear is already a serious penalty; cubic when optimal is quadratic is also serious. Prefer solutions that achieve near-optimal time even if they use O(n) extra space when that is the standard optimal trade-off. Do not punish candidates for O(n) time and O(n) auxiliary space when the only way to save space would worsen time (e.g., hash-map Two Sum). In such cases, consider the O(n)-space solution as meeting optimal expectations and award a 5/5.
 
 RUBRIC:
 

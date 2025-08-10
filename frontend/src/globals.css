@@ -188,6 +188,23 @@ h1, h2 { letter-spacing: -0.02em; }
   background: rgba(16, 185, 129, 0.15);
 }
 
+/* Muted/neutral gray button - faded gray similar to badges */
+.btn--muted {
+  background: rgba(207, 211, 220, 0.12); /* #cfd3dc with low alpha */
+  border-color: rgba(207, 211, 220, 0.25);
+  color: #cfd3dc;
+  font-weight: 400;
+}
+
+.btn--muted:hover {
+  background: rgba(207, 211, 220, 0.18);
+  border-color: rgba(207, 211, 220, 0.32);
+}
+
+.btn--muted:active {
+  background: rgba(207, 211, 220, 0.10);
+}
+
 /* Button sizes */
 .btn--sm {
   height: 28px;

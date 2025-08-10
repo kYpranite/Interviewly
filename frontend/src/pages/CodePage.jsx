@@ -19,6 +19,7 @@ export default function CodePage() {
     const [isEvaluating, setIsEvaluating] = useState(false);
     const codeEditorRef = useRef(null);
     const [selectedLanguage, setSelectedLanguage] = useState("python");
+    const hasFetchedQuestionRef = useRef(false);
 
     // Use useRef to store interview start time (doesn't trigger re-renders)
     const interviewStartTime = useRef(new Date().toISOString());
@@ -60,6 +61,8 @@ export default function CodePage() {
             console.log("Evaluation completed:", evaluationResponse);
 
             // Navigate to results page with evaluation data
+            // Clear the persisted question so a new interview gets a new one
+            try { sessionStorage.removeItem('activeQuestion'); } catch {}
             navigate("/results", {
                 state: {
                     evaluation: evaluationResponse.evaluation,
@@ -84,8 +87,29 @@ export default function CodePage() {
         let alive = true;
         (async () => {
             try {
-                const q = await getRandomQuestion();
-                if (alive) setQuestion(q);
+                // First try to restore any active question for this interview
+                if (!hasFetchedQuestionRef.current) {
+                    const stored = sessionStorage.getItem('activeQuestion');
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (alive && parsed) {
+                            setQuestion(parsed);
+                            hasFetchedQuestionRef.current = true;
+                            return;
+                        }
+                    }
+                }
+
+                // If none stored and not yet fetched, fetch once
+                if (!hasFetchedQuestionRef.current) {
+                    const q = await getRandomQuestion();
+                    if (alive) {
+                        setQuestion(q);
+                        hasFetchedQuestionRef.current = true;
+                        // Persist for the duration of the interview
+                        try { sessionStorage.setItem('activeQuestion', JSON.stringify(q)); } catch {}
+                    }
+                }
             } catch (error) {
                 console.error("Error fetching random question:", error);
             }
