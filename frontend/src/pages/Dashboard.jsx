@@ -6,17 +6,11 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartColumn, faChartLine, faListCheck, faBook, faClockRotateLeft, faWandMagicSparkles, faGear, faTag } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "../components/Navbar";
+import ResultsPage from "./ResultsPage";
+import { useSessions, useQuestions } from "../hooks/useFirestore";
 import "./Dashboard.css";
 
 /* ---- sample data ---- */
-const SAMPLE_PAST = [
-  { id: "int-1007", date: "Aug 09", difficulty: "Medium", score: 78, durationMin: 48, result: "Improve" },
-  { id: "int-1006", date: "Aug 06", difficulty: "Hard",   score: 84, durationMin: 60, result: "Pass"     },
-  { id: "int-1005", date: "Aug 02", difficulty: "Medium", score: 72, durationMin: 50, result: "Improve" },
-  { id: "int-1004", date: "Jul 30", difficulty: "Easy",   score: 90, durationMin: 35, result: "Pass"     },
-  { id: "int-1003", date: "Jul 27", difficulty: "Hard",   score: 69, durationMin: 62, result: "Improve" },
-];
-
 const DRILLS = [
   { id: "d1", title: "Arrays & Hashing", difficulty: "Easy",   estMin: 15 },
   { id: "d2", title: "Two Pointers",     difficulty: "Medium", estMin: 20 },
@@ -48,6 +42,115 @@ export default function CodePage() {
   const [tagMenuOpen, setTagMenuOpen] = useState(false);
   const tagMenuRef = useRef(null);
 
+  // history view state
+  const [showHistoryDetail, setShowHistoryDetail] = useState(false);
+  const [selectedSession, setSelectedSession] = useState(null);
+
+  // sessions data
+  const { getUserSessions } = useSessions();
+  const { getQuestionById } = useQuestions();
+  const [userSessions, setUserSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load user sessions on component mount
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        const sessions = await getUserSessions();
+        
+        // Fetch question details for each session to get difficulty
+        const sessionsWithQuestionDetails = await Promise.all(
+          sessions.map(async (session) => {
+            let questionDifficulty = "Medium"; // default
+            
+            if (session.question?.id) {
+              try {
+                const questionDetails = await getQuestionById(session.question.id);
+                if (questionDetails && questionDetails.difficulty) {
+                  questionDifficulty = questionDetails.difficulty;
+                }
+              } catch (error) {
+                console.error('Error fetching question details for session:', session.id, error);
+              }
+            }
+            
+            return {
+              ...session,
+              questionDifficulty
+            };
+          })
+        );
+        
+        setUserSessions(sessionsWithQuestionDetails);
+      } catch (error) {
+        console.error('Error loading sessions:', error);
+        setUserSessions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSessions();
+  }, []);
+
+  // Format session data for display
+  const formatSessionForDisplay = (session) => {
+    const date = session.createdAt?.toDate ? session.createdAt.toDate() : new Date(session.createdAt);
+    const durationMin = Math.round(session.durationSec / 60);
+    
+    // Use the fetched question difficulty, or fallback to score-based logic
+    const difficulty = session.questionDifficulty.charAt(0).toUpperCase() + session.questionDifficulty.slice(1);;
+    
+    return {
+      id: session.id,
+      date: date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }),
+      difficulty,
+      score: session.finalScore,
+      durationMin,
+      result: session.finalScore >= 70 ? "Pass" : "Improve",
+      session // Keep reference to full session data
+    };
+  };
+
+  // Handle clicking on a session to view details
+  const handleSessionClick = (sessionData) => {
+    if (!sessionData.session.feedback) {
+      alert('No feedback data available for this session');
+      return;
+    }
+
+    // Convert Firebase session data to ResultsPage format
+    const historicalData = {
+      sessionId: sessionData.session.id,
+      evaluation: {
+        criteria: sessionData.session.feedback.criterions?.map(criterion => ({
+          name: criterion.nameOfCriterion,
+          score: criterion.scoreOfCriterion,
+          justification: criterion.reasoningForScore
+        })) || [],
+        overall_feedback: sessionData.session.feedback.feedbackFromLLM
+      },
+      interviewStartTime: sessionData.session.createdAt?.toDate ? 
+        sessionData.session.createdAt.toDate().toISOString() : 
+        sessionData.session.createdAt,
+      questionId: sessionData.session.question?.id,
+      question_title: sessionData.session.question?.name,
+      language: sessionData.session.language,
+      interviewDuration: sessionData.session.durationSec,
+      code: sessionData.session.feedback.code,
+      transcriptUrl: sessionData.session.feedback.transcriptUrl
+    };
+
+    setSelectedSession(historicalData);
+    setShowHistoryDetail(true);
+  };
+
+  // Handle going back to dashboard from history detail
+  const handleBackFromHistory = () => {
+    setShowHistoryDetail(false);
+    setSelectedSession(null);
+  };
+
   // Close tag menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -67,13 +170,25 @@ export default function CodePage() {
 
   // chart data
   const LAST_5 = useMemo(() => {
-    const last = SAMPLE_PAST.slice(-5).reverse();
-    return last.map((i, idx) => ({ attempt: idx + 1, score: i.score }));
-  }, []);
-  const avgScore = useMemo(
-    () => Math.round(LAST_5.reduce((a, b) => a + b.score, 0) / LAST_5.length),
-    [LAST_5]
-  );
+    if (userSessions.length === 0) {
+      // Return empty array for chart when no sessions
+      return [];
+    }
+    
+    return userSessions.slice(0, 5).reverse().map((session, idx) => {
+      const date = session.createdAt?.toDate ? session.createdAt.toDate() : new Date(session.createdAt);
+      return {
+        attempt: idx + 1,
+        score: session.finalScore || 0,
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      };
+    });
+  }, [userSessions]);
+
+  const avgScore = useMemo(() => {
+    if (LAST_5.length === 0) return 0;
+    return Math.round(LAST_5.reduce((a, b) => a + b.score, 0) / LAST_5.length);
+  }, [LAST_5]);
 
   // tags
   const addTag = (raw) => {
@@ -84,6 +199,17 @@ export default function CodePage() {
 
   const tagsParam = encodeURIComponent(tags.join(","));
   const interviewLink = `/code/start?lang=${lang}&diff=${diff}&time=${timeLimit}&tags=${tagsParam}`;
+
+  // Show history detail view if selected
+  if (showHistoryDetail && selectedSession) {
+    return (
+      <ResultsPage 
+        historicalData={selectedSession}
+        isHistoryMode={true}
+        onNavigateBack={handleBackFromHistory}
+      />
+    );
+  }
 
   return (
     <div className="dash">
@@ -285,27 +411,47 @@ export default function CodePage() {
             <div className="card__desc">Recent attempts and results</div>
           </div>
           <div className="card__body">
-            <ul className="list divide">
-              {SAMPLE_PAST.map((item) => (
-                <li key={item.id} className="list__row">
-                  <div className="minw">
-                    <p className="list__title">
-                      {item.date} • <span className="text-muted">{item.id}</span>
-                    </p>
-                    <p className="list__sub">
-                      {item.durationMin} min • {item.difficulty}
-                    </p>
+            {loading ? (
+              <div className="text-center py-4">Loading sessions...</div>
+            ) : userSessions.length === 0 ? (
+              <div className="text-center py-4 text-muted">No sessions found. Complete an interview to see your history!</div>
+            ) : (
+              <>
+                <ul className="list divide">
+                  {userSessions.slice(0, 5).map((session) => {
+                    const formattedSession = formatSessionForDisplay(session);
+                    return (
+                      <li 
+                        key={session.id} 
+                        className="list__row" 
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handleSessionClick(formattedSession)}
+                      >
+                        <div className="minw">
+                          <p className="list__title">
+                            {formattedSession.date} • <span className="text-muted">{session.id.slice(-6)}</span>
+                          </p>
+                          <p className="list__sub">
+                            {formattedSession.durationMin} min • {formattedSession.difficulty}
+                          </p>
+                        </div>
+                        <div className="row gap-12">
+                          <ToneBadge tone={formattedSession.result === "Pass" ? "green" : "amber"}>
+                            {formattedSession.result}
+                          </ToneBadge>
+                          <span className="score">{formattedSession.score}%</span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {userSessions.length > 5 && (
+                  <div className="right mt-12">
+                    <button className="btn btn--ghost">View all ({userSessions.length} total)</button>
                   </div>
-                  <div className="row gap-12">
-                    <ToneBadge tone={item.result === "Pass" ? "green" : "amber"}>{item.result}</ToneBadge>
-                    <span className="score">{item.score}%</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="right mt-12">
-              <button className="btn btn--ghost">View all</button>
-            </div>
+                )}
+              </>
+            )}
           </div>
         </section>
       </main>

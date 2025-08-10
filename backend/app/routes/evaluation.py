@@ -70,7 +70,6 @@ def evaluate_interview_endpoint():
             "evaluation": evaluation_result,
             "interview_start_time": interview_start_time,
             "interview_started_at": start_formatted,
-            "evaluated_at": evaluation_formatted
         })
         
     except Exception as e:

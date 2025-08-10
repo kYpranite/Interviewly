@@ -6,8 +6,12 @@ import CodePage from "./pages/CodePage";
 import ResultsPage from "./pages/ResultsPage";
 import Login from "./pages/Login";               // <-- missing import
 import ProtectedRoute from "./components/ProtectedRoute";
+import useScrollToTop from "./hooks/useScrollToTop";
 
 export default function App() {
+  // Automatically scroll to top on route changes
+  useScrollToTop();
+
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />

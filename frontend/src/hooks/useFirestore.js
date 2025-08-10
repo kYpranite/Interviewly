@@ -1,4 +1,4 @@
-import { collection, getDocs, query, limit, orderBy, startAt, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, limit, orderBy, startAt, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { useAuth } from './useAuth';
@@ -31,7 +31,26 @@ export function useQuestions() {
     }
   };
 
-  return { getRandomQuestion };
+  const getQuestionById = async (questionId) => {
+    try {
+      const questionRef = doc(db, 'questions', questionId);
+      const questionDoc = await getDoc(questionRef);
+      
+      if (questionDoc.exists()) {
+        return {
+          id: questionDoc.id,
+          ...questionDoc.data()
+        };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Error getting question by ID:', error);
+      throw error;
+    }
+  };
+
+  return { getRandomQuestion, getQuestionById };
 }
 
 export function useSessions() {
@@ -171,5 +190,42 @@ export function useSessions() {
     }
   };
 
-  return { createSession, createSessionWithFeedback };
+  const getUserSessions = async () => {
+    try {
+      if (!user) {
+        throw new Error('User must be authenticated to fetch sessions');
+      }
+
+      const userSessionsRef = collection(db, 'users', user.uid, 'sessions');
+      const sessionsQuery = query(userSessionsRef, orderBy('createdAt', 'desc'));
+      const sessionsSnapshot = await getDocs(sessionsQuery);
+      
+      const sessions = await Promise.all(
+        sessionsSnapshot.docs.map(async (sessionDoc) => {
+          const sessionData = { id: sessionDoc.id, ...sessionDoc.data() };
+          
+          // Fetch feedback for this session
+          const feedbackRef = collection(db, 'users', user.uid, 'sessions', sessionDoc.id, 'feedback');
+          const feedbackSnapshot = await getDocs(feedbackRef);
+          
+          let feedbackData = null;
+          if (!feedbackSnapshot.empty) {
+            feedbackData = feedbackSnapshot.docs[0].data();
+          }
+          
+          return {
+            ...sessionData,
+            feedback: feedbackData
+          };
+        })
+      );
+      
+      return sessions;
+    } catch (error) {
+      console.error('Error fetching user sessions:', error);
+      throw error;
+    }
+  };
+
+  return { createSession, createSessionWithFeedback, getUserSessions };
 }

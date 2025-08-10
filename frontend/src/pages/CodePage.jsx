@@ -63,7 +63,6 @@ export default function CodePage() {
         state: { 
           evaluation: evaluationResponse.evaluation,
           interviewStartTime: interviewStartTime.current, // Use the actual start time from ref
-          evaluatedAt: evaluationResponse.evaluated_at,
           questionId: question?.id,
           question_title: question?.title || "Unknown Problem",
           language: selectedLanguage,
