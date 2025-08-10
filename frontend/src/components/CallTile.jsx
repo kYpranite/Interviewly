@@ -5,13 +5,15 @@ export default function CallTile({
   name,
   title,
   active = false,
-  initialX = 24,
-  initialY = 24
+  // If provided, these override the default bottom-right start
+  initialX,
+  initialY
 }) {
   const ringRef = useRef(null)
   const wrapRef = useRef(null)
   const [hidden, setHidden] = useState(false)
-  const [pos, setPos] = useState({ x: initialX, y: initialY })
+  const [pos, setPos] = useState({ x: 0, y: 0 })
+  const [initialized, setInitialized] = useState(false)
   const [drag, setDrag] = useState({ grabbing: false, dx: 0, dy: 0 })
   const LEBRON_URL = 'https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png'
   const [imgError, setImgError] = useState(false)
@@ -49,7 +51,24 @@ export default function CallTile({
     }
   }, [drag.grabbing, drag.dx, drag.dy])
 
-  // no cleanup needed
+  // Initialize position to bottom-right if no explicit initialX/initialY were provided
+  useEffect(() => {
+    // If caller provided both coordinates, respect them
+    if (typeof initialX === 'number' && typeof initialY === 'number') {
+      setPos({ x: initialX, y: initialY })
+      setInitialized(true)
+      return
+    }
+
+    const offset = 45 // margin from edges
+    // Use measured size if available; fall back to card's known width
+    const w = wrapRef.current?.offsetWidth || 320
+    const h = wrapRef.current?.offsetHeight || 200
+    const maxX = Math.max(8, window.innerWidth - w - offset)
+    const maxY = Math.max(8, window.innerHeight - h - offset)
+    setPos({ x: maxX, y: maxY })
+    setInitialized(true)
+  }, [initialX, initialY])
 
   function onDown(e) {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX
@@ -66,7 +85,7 @@ export default function CallTile({
     <div
       ref={wrapRef}
       className={`call-wrap ${drag.grabbing ? 'grabbing' : ''}`}
-      style={{ transform: `translate3d(${pos.x}px, ${pos.y}px, 0)` }}
+  style={{ transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`, visibility: initialized ? 'visible' : 'hidden' }}
       role="dialog"
       aria-label={`${name} – ${title}`}
     >
