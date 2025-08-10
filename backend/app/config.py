@@ -6,8 +6,12 @@ class Config:
     AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
     AZURE_SPEECH_ENDPOINT = os.getenv("AZURE_SPEECH_ENDPOINT")
 
-    # CORS
-    FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "*")
+    # CORS: allow comma-separated list of origins (e.g., "http://127.0.0.1:5173,http://localhost:5173")
+    _origins = os.getenv("FRONTEND_ORIGIN", "*")
+    if "," in _origins:
+        FRONTEND_ORIGIN = [o.strip() for o in _origins.split(",") if o.strip()]
+    else:
+        FRONTEND_ORIGIN = _origins
 
     # Gemini
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")  # 🔑 put your Gemini key here

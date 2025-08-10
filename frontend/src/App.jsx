@@ -4,6 +4,7 @@ import CodeEditor from './components/CodeEditor'
 import { useQuestions } from './hooks/useFirestore'
 import ProblemPanel from './components/ProblemPanel'
 import CallTile from './components/CallTile'
+import VoicePanel from './components/VoicePanel'
 
 function App() {
   const { getRandomQuestion } = useQuestions();
@@ -39,9 +40,11 @@ function App() {
     return `${m}:${s} remaining`;
   }, [secondsLeft]);
 
+  const [aiSpeaking, setAiSpeaking] = useState(false)
+
   return (
     <div className="app">
-  <CallTile name="Ethan Huang" title="Senior Engineer" />
+  <CallTile name="Chris Hogan" title="Principal Engineer" active={aiSpeaking} />
       <header className="app-header">
         <h1 className="app-title">Technical Interview</h1>
         <span className="timer-badge" aria-live="polite">{timeDisplay}</span>
@@ -52,6 +55,9 @@ function App() {
           <ProblemPanel question={question} />
         </aside>
         <section className="right-panel">
+          <div style={{ marginBottom: '0.75rem' }}>
+            <VoicePanel onAiSpeakingChange={setAiSpeaking} />
+          </div>
           {question ? (
             <CodeEditor question={question} />
           ) : (

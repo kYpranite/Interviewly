@@ -1,23 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './CallTile.css'
 
-function useActiveSpeaker() {
-  const [active, setActive] = useState(false)
-  useEffect(() => {
-    // Mock speaking pattern: on 2s, off 2s
-    const iv = setInterval(() => setActive(a => !a), 2000)
-    return () => clearInterval(iv)
-  }, [])
-  return active
-}
-
 export default function CallTile({
   name,
   title,
+  active = false,
   initialX = 24,
   initialY = 24
 }) {
-  const active = useActiveSpeaker()
   const ringRef = useRef(null)
   const wrapRef = useRef(null)
   const [hidden, setHidden] = useState(false)
@@ -29,20 +19,6 @@ export default function CallTile({
     .slice(0, 2)
     .map(s => s.charAt(0).toUpperCase())
     .join('') || 'EH'
-
-  useEffect(() => {
-    const el = ringRef.current
-    if (!el) return
-    el.animate([
-      { boxShadow: '0 0 0 0 rgba(58,160,255,0.6)' },
-      { boxShadow: '0 0 0 14px rgba(58,160,255,0)' }
-    ], {
-      duration: 700,
-      iterations: active ? Infinity : 1,
-      direction: 'alternate',
-      easing: 'ease-out'
-    })
-  }, [active])
 
   useEffect(() => {
     function onMove(e) {
@@ -92,7 +68,7 @@ export default function CallTile({
     >
       <div className="call-card" onMouseDown={onDown} onTouchStart={onDown}>
         <button className="close-btn" aria-label="Close" onClick={() => setHidden(true)}>×</button>
-        <div className="speaking-pill" aria-hidden={!active} style={{ opacity: active ? 1 : 0.6 }}>
+        <div className={`speaking-pill ${active ? 'active' : ''}`} aria-hidden={!active}>
           <span className="dot" /> Speaking
         </div>
         <div className={`avatar ${active ? 'active' : ''}`}>
