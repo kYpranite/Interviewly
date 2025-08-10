@@ -1,7 +1,21 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import "./home.css";
 
 export default function HomePage() {
+  const { user, openLoginModal } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartInterview = () => {
+    if (user) {
+      // User is already logged in, navigate to code page
+      navigate("/code");
+    } else {
+      // User is not logged in, show login modal
+      openLoginModal();
+    }
+  };
+
   return (
     <div className="home-page">
       <main id="main" className="container">
@@ -18,12 +32,16 @@ export default function HomePage() {
             </p>
 
             <div className="cta">
-              <Link to="/code" className="btn" aria-label="Simulate Coding Interview">
+              <button 
+                onClick={handleStartInterview}
+                className="btn" 
+                aria-label="Simulate Coding Interview"
+              >
                 <span>Simulate Coding Interview</span>
                 <svg className="icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                   <path d="M5 12h12m0 0-5-5m5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </Link>
+              </button>
             </div>
           </div>
         </section>

@@ -1,10 +1,9 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import "./navbar.css";
 
 export default function Navbar() {
-  const { user, signOutUser } = useAuth();
-  const location = useLocation();
+  const { user, signOutUser, openLoginModal } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -14,6 +13,10 @@ export default function Navbar() {
     } catch (e) {
       console.error("Sign out failed:", e);
     }
+  };
+
+  const handleLoginClick = () => {
+    openLoginModal();
   };
 
   return (
@@ -32,13 +35,9 @@ export default function Navbar() {
             Log out
           </button>
         ) : (
-          <Link
-            to="/login"
-            state={{ from: location }}   // so we can return after login
-            className="nav-link"
-          >
+          <button className="nav-link nav-btn" onClick={handleLoginClick}>
             Log in
-          </Link>
+          </button>
         )}
       </nav>
     </header>
