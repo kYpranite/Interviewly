@@ -49,6 +49,103 @@
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
+/* Final Score Display */
+.final-score-display {
+  background: linear-gradient(45deg, #1e40af, #3730a3);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+}
+
+.final-score-display h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+  color: #f8fafc;
+}
+
+.final-score {
+  color: #fbbf24;
+  font-weight: 800;
+  font-size: 2.2rem;
+}
+
+.score-description {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* Score Breakdown */
+.score-breakdown {
+  background: #1e293b;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border: 1px solid #334155;
+}
+
+.score-breakdown h3 {
+  margin: 0 0 1rem 0;
+  color: #f8fafc;
+  font-size: 1.4rem;
+}
+
+.breakdown-table {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.breakdown-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #0f172a;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  border: 1px solid #475569;
+}
+
+.breakdown-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #334155;
+  border-radius: 6px;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.breakdown-row:hover {
+  background: #475569;
+}
+
+.criterion-name {
+  font-weight: 500;
+  color: #f8fafc;
+}
+
+.score-cell {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.weight-cell {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.contribution-cell {
+  color: #22c55e;
+  font-weight: 600;
+}
+
 .results-container {
   display: flex;
   flex-direction: column;

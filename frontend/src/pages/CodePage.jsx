@@ -19,6 +19,9 @@ export default function CodePage() {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const codeEditorRef = useRef(null);
   const [selectedLanguage, setSelectedLanguage] = useState("python");
+  
+  // Use useRef to store interview start time (doesn't trigger re-renders)
+  const interviewStartTime = useRef(new Date().toISOString());
 
   const handleEndInterview = async () => {
     if (!window.confirm("Are you sure you want to end the interview?")) {
@@ -55,7 +58,8 @@ export default function CodePage() {
         codeSubmission: currentCode,
         language: selectedLanguage,
         testResults: testResults,
-        question: questionData
+        question: questionData,
+        interviewStartTime: interviewStartTime.current
       });
 
       console.log("Evaluation completed:", evaluationResponse);
@@ -64,12 +68,14 @@ export default function CodePage() {
       navigate("/results", { 
         state: { 
           evaluation: evaluationResponse.evaluation,
-          metadata: {
-            question: question?.title || "Unknown Problem",
-            language: selectedLanguage,
-            testResults: testResults,
-            interviewDuration: (45 * 60 - secondsLeft) / 60 // in minutes
-          }
+          interviewStartTime: evaluationResponse.interview_start_time,
+          evaluatedAt: evaluationResponse.evaluated_at,
+          questionId: question?.id,
+          question_title: question?.title || "Unknown Problem",
+          language: selectedLanguage,
+          testResults: testResults,
+          interviewDuration: (45 * 60 - secondsLeft) / 60, // in minutes
+          code: currentCode
         } 
       });
       
