@@ -13,6 +13,8 @@ export default function CallTile({
   const [hidden, setHidden] = useState(false)
   const [pos, setPos] = useState({ x: initialX, y: initialY })
   const [drag, setDrag] = useState({ grabbing: false, dx: 0, dy: 0 })
+  const LEBRON_URL = 'https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png'
+  const [imgError, setImgError] = useState(false)
   const initials = (name || '')
     .split(/\s+/)
     .filter(Boolean)
@@ -47,6 +49,8 @@ export default function CallTile({
     }
   }, [drag.grabbing, drag.dx, drag.dy])
 
+  // no cleanup needed
+
   function onDown(e) {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX
     const clientY = e.touches ? e.touches[0].clientY : e.clientY
@@ -67,15 +71,19 @@ export default function CallTile({
       aria-label={`${name} – ${title}`}
     >
       <div className="call-card" onMouseDown={onDown} onTouchStart={onDown}>
-        <button className="close-btn" aria-label="Close" onClick={() => setHidden(true)}>×</button>
+        <button className="close-btn" aria-label="Close" onClick={(e) => { e.stopPropagation(); setHidden(true) }}>×</button>
         <div className={`speaking-pill ${active ? 'active' : ''}`} aria-hidden={!active}>
           <span className="dot" /> Speaking
         </div>
         <div className={`avatar ${active ? 'active' : ''}`}>
           <div ref={ringRef} className="ring" />
-          <div className="avatar-fallback" aria-hidden>
-            <div className="initials">{initials}</div>
-          </div>
+          {imgError ? (
+            <div className="avatar-fallback" aria-hidden>
+              <div className="initials">{initials}</div>
+            </div>
+          ) : (
+            <img src={LEBRON_URL} alt={`${name} avatar`} onError={() => setImgError(true)} />
+          )}
         </div>
         <div className="meta">
           <div className="name">{name}</div>
