@@ -1,14 +1,14 @@
 /* Dashboard layout */
 .dash {
   min-height: 100vh;
-  background: radial-gradient(1200px 600px at 30% -10%, #1b1f27 0%, #0b0d11 60%, #000 100%);
+  background: radial-gradient(1200px 600px at 30% -10%, #1a1a1a 0%, #0d0d0d 60%, #000 100%);
   color: #fff;
 }
 
 .dash__bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(1200px 600px at 30% -10%, #1b1f27 0%, #0b0d11 60%, #000 100%);
+  background: radial-gradient(1200px 600px at 30% -10%, #1a1a1a 0%, #0d0d0d 60%, #000 100%);
   z-index: -1;
 }
 
@@ -113,6 +113,18 @@
   padding: 16px 16px 8px 16px;
 }
 
+.card__title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.card__icon {
+  color: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+}
+
 .card__title {
   font-weight: 600;
   font-size: 18px;
@@ -131,6 +143,44 @@
 
 .space-16 > * + * {
   margin-top: 16px;
+}
+
+/* Settings row for Generate Interview */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.settings-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .settings-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .settings-display {
+    justify-content: center;
+  }
+  
+  .settings-actions {
+    justify-content: center;
+  }
 }
 
 /* Chart */
@@ -347,6 +397,7 @@
   background: rgba(255, 255, 255, 0.1);
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .range::-webkit-slider-thumb {

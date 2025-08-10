@@ -68,6 +68,7 @@
     margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
+    text-align: left;
 }
 
 /* Custom scrollbar for output */
