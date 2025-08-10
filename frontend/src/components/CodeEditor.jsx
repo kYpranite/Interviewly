@@ -1,6 +1,6 @@
 import Editor from "@monaco-editor/react";
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
-import { sendToAI, updateAIContext } from "../api";
+import { analyzeAIContext, updateAIContext } from "../api";
 import { getClientId } from "../clientId";
 import LanguageSelector from "./LanguageSelector";
 import OutputBox from "./OutputBox";
@@ -110,7 +110,7 @@ const CodeEditor = forwardRef(({ question, onLanguageChange }, ref) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [question?.id, selectedLanguage]);
 
-    // Periodically send current code to Gemini (every 30s) to provide context
+    // Periodically sync context and trigger context-only analysis (every 30s)
     useEffect(() => {
     // Ensure a stable per-tab client id (session-based)
     clientIdRef.current = getClientId();
@@ -128,6 +128,8 @@ const CodeEditor = forwardRef(({ question, onLanguageChange }, ref) => {
                     if (qKey && lastQuestionKeyRef.current === qKey) return;
                     lastQuestionKeyRef.current = qKey;
                     await updateAIContext({ code, language: selectedLanguage, question }, clientIdRef.current);
+                    // Also trigger analysis so Gemini can give guidance based on question alone
+                    try { await analyzeAIContext(clientIdRef.current); } catch (_) {}
                     return;
                 }
 
@@ -137,13 +139,8 @@ const CodeEditor = forwardRef(({ question, onLanguageChange }, ref) => {
 
                 // Update server-side context store
                 await updateAIContext({ code, language: selectedLanguage, question }, clientIdRef.current);
-
-                // Optionally nudge Gemini with a lightweight ping so the interviewer is aware
-                const title = question?.title || '';
-                const fn = question?.function || '';
-                const args = Array.isArray(question?.args) ? question.args.join(', ') : '';
-                const msg = `SYSTEM: Context sync. Current question: ${title} — ${fn}(${args}). Current code language=${selectedLanguage}.`;
-                await sendToAI([{ role: "user", content: msg }], clientIdRef.current);
+                // Trigger context-only analysis
+                await analyzeAIContext(clientIdRef.current);
             } catch (_) {
                 // ignore errors; this is background context syncing
             }
