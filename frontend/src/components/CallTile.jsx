@@ -82,7 +82,7 @@ export default function CallTile({
               <div className="initials">{initials}</div>
             </div>
           ) : (
-            <img src={LEBRON_URL} alt={`${name} avatar`} onError={() => setImgError(true)} />
+            <img src={LEBRON_URL} alt={`${name} avatar`} onError={() => setImgError(true)} draggable="false" />
           )}
         </div>
         <div className="meta">

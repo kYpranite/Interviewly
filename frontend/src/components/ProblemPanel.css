@@ -5,6 +5,8 @@
   gap: 16px;
   background-color: #111216; /* darker than editor to match contrast */
   color: #cfd3dc;
+  height: 100%;
+  min-height: calc(100vh - 9rem);
 }
 
 .problem-header {
@@ -39,6 +41,13 @@
   border: 1px solid #1f2430;
   border-radius: 8px;
   padding: 16px;
+  flex-shrink: 0;
+}
+
+.section:last-of-type {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .section-title {
@@ -58,7 +67,8 @@
 .examples {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 25px;
+  flex: 1;
 }
 
 .example-card {
