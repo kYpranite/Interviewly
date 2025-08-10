@@ -44,13 +44,17 @@ function CodeEditor({question}) {
         setOutput("Running...");
         try {
             const code = editorRef.current?.getValue?.() ?? value ?? "";
-            console.log("Running code:", code);
+                    
             const res = await fetch("/api/code/run", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     code,
-                    language: selectedLanguage
+                    language: selectedLanguage,
+                    test_cases: question.test_cases,
+                    timeout: question.timeout,
+                    checker: question.checker,
+                    function: question.function
                 })
             });
             console.log(res)
