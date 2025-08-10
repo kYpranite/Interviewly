@@ -1,4 +1,11 @@
-.home-page { min-height: 100vh; color:#fff; background: linear-gradient(to bottom,#000,#171717,#000); }
+.home-page {
+  min-height: 100vh;
+  color:#fff;
+  /* Slightly darker, still defined gradient with a very soft top glow */
+  background:
+    radial-gradient(1100px 520px at 50% 0%, rgba(255,255,255,0.035), rgba(255,255,255,0) 65%),
+    linear-gradient(to bottom, #070707 0%, #171717 45%, #0b0b0b 100%);
+}
 .container { max-width: 72rem; margin: 0 auto; padding: 0 16px; }
 .hero { min-height: calc(100vh - 56px); display: grid; place-items: center; text-align: center; margin: 40px 15px;}
 .hero-inner { max-width: 60rem; }

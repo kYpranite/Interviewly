@@ -6,10 +6,10 @@ export default function HomePage() {
   const { user, openLoginModal } = useAuth();
   const navigate = useNavigate();
 
-  const handleStartInterview = () => {
+  const handleStart = () => {
     if (user) {
       // User is already logged in, navigate to code page
-      navigate("/code");
+      navigate("/dashboard");
     } else {
       // User is not logged in, show login modal
       openLoginModal();
@@ -33,11 +33,11 @@ export default function HomePage() {
 
             <div className="cta">
               <button 
-                onClick={handleStartInterview}
+                onClick={handleStart}
                 className="btn" 
-                aria-label="Simulate Coding Interview"
+                aria-label="Get Started!"
               >
-                <span>Simulate Coding Interview</span>
+                <span>Get Started!</span>
                 <svg className="icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                   <path d="M5 12h12m0 0-5-5m5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
