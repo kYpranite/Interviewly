@@ -1,4 +1,5 @@
 from flask import Blueprint, current_app, jsonify, request
+from datetime import datetime
 from ..services.evaluation_service import evaluate_interview
 
 evaluation_bp = Blueprint("evaluation", __name__, url_prefix="/api/evaluation")
@@ -32,6 +33,7 @@ def evaluate_interview_endpoint():
         language = data.get("language", "python")
         test_results = data.get("test_results", {})
         question = data.get("question", {})
+        interview_start_time = data.get("interviewStartTime")
         
         # Validate required fields
         if not transcript:
@@ -55,9 +57,21 @@ def evaluate_interview_endpoint():
             question=question
         )
         
+        # Parse interview start time and get current evaluation time
+        current_time = datetime.now()
+        evaluation_timestamp = current_time.isoformat()
+        evaluation_formatted = current_time.strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Parse the interview start time
+        start_time = datetime.fromisoformat(interview_start_time.replace('Z', '+00:00'))
+        start_formatted = start_time.strftime("%Y-%m-%d %H:%M:%S")
+        
         return jsonify({
             "success": True,
-            "evaluation": evaluation_result
+            "evaluation": evaluation_result,
+            "interview_start_time": interview_start_time,
+            "interview_started_at": start_formatted,
+            "evaluated_at": evaluation_formatted
         })
         
     except Exception as e:

@@ -51,7 +51,7 @@ export async function runCode(code, language, question) {
   return data; // { summary, results }
 }
 
-export async function evaluateInterview({ transcript, codeSubmission, language, testResults, question }) {
+export async function evaluateInterview({ transcript, codeSubmission, language, testResults, question, interviewStartTime }) {
   const resp = await fetch('/api/evaluation/evaluate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -60,7 +60,8 @@ export async function evaluateInterview({ transcript, codeSubmission, language, 
       code_submission: codeSubmission,
       language,
       test_results: testResults,
-      question
+      question,
+      interviewStartTime
     })
   });
   const data = await resp.json();
