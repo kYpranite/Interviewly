@@ -10,6 +10,7 @@ function CodeEditor({question}) {
     const [value, setValue] = useState("");
     const [output, setOutput] = useState("");
     const [isRunning, setIsRunning] = useState(false);
+    const [activeMode, setActiveMode] = useState("code");
 
     // Convert literal escape sequences ("\n", "\r\n", "\t") into actual characters
     const unescapeTemplate = (s) => {
@@ -51,6 +52,10 @@ function CodeEditor({question}) {
     const handleLanguageChange = (newLanguage) => {
         setSelectedLanguage(newLanguage);
         setValue(getDefaultValue(newLanguage));
+    };
+
+    const handleModeChange = (mode) => {
+        setActiveMode(mode);
     };
 
     const handleReset = () => {
@@ -95,8 +100,20 @@ function CodeEditor({question}) {
         <div className="code-editor-container">
             <div className="editor-header">
                 <div className="mode-tabs" role="tablist">
-                    <button className="mode-tab active" type="button">Code</button>
-                    <button className="mode-tab" type="button">Notebook</button>
+                    <button 
+                        className={`mode-tab ${activeMode === "code" ? "active" : ""}`} 
+                        type="button"
+                        onClick={() => handleModeChange("code")}
+                    >
+                        Code
+                    </button>
+                    <button 
+                        className={`mode-tab ${activeMode === "notebook" ? "active" : ""}`} 
+                        type="button"
+                        onClick={() => handleModeChange("notebook")}
+                    >
+                        Notebook
+                    </button>
                 </div>
                 <LanguageSelector 
                     selectedLanguage={selectedLanguage}
@@ -123,28 +140,41 @@ function CodeEditor({question}) {
             
             <div className="divider"></div>
             
-            <div className="editor-wrapper">
-                <Editor
-                    key={`editor-${selectedLanguage}`}
-                    height="60vh"
-                    defaultLanguage={selectedLanguage}
-                    language={selectedLanguage}
-                    theme="interviewly-dark"
-                    value={value}
-                    onChange={(value) => setValue(value ?? "")}
-                    beforeMount={beforeMount}
-                    onMount={onMount}
-                    options={{
-                        fontSize: 14,
-                        fontFamily: "'Fira Code', 'Consolas', 'Monaco', monospace",
-                        minimap: { enabled: false }
-                    }}
-                />
-            </div>
-            
-            <div className="divider"></div>
+            {activeMode === "code" ? (
+                <>
+                    <div className="editor-wrapper">
+                        <Editor
+                            key={`editor-${selectedLanguage}`}
+                            height="60vh"
+                            defaultLanguage={selectedLanguage}
+                            language={selectedLanguage}
+                            theme="interviewly-dark"
+                            value={value}
+                            onChange={(value) => setValue(value ?? "")}
+                            beforeMount={beforeMount}
+                            onMount={onMount}
+                            options={{
+                                fontSize: 14,
+                                fontFamily: "'Fira Code', 'Consolas', 'Monaco', monospace",
+                                minimap: { enabled: false }
+                            }}
+                        />
+                    </div>
+                    
+                    <div className="divider"></div>
 
-            <OutputBox output={output} editorRef={editorRef} language={selectedLanguage} />
+                    <OutputBox output={output} editorRef={editorRef} language={selectedLanguage} />
+                </>
+            ) : (
+                <div className="notebook-wrapper">
+                    <div className="notebook-content">
+                        <div className="notebook-placeholder">
+                            <h3>Notebook Mode</h3>
+                            <p>Notebook interface coming soon...</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

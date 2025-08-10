@@ -169,3 +169,37 @@
         flex: 1;
     }
 }
+
+/* Notebook Mode Styles */
+.notebook-wrapper {
+    height: 60vh;
+    background-color: #0d0f12;
+    display: flex;
+    flex-direction: column;
+}
+
+.notebook-content {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notebook-placeholder {
+    text-align: center;
+    color: #a7b1c9;
+}
+
+.notebook-placeholder h3 {
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.notebook-placeholder p {
+    color: #6b7385;
+    font-size: 14px;
+    margin: 0;
+}
