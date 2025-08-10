@@ -1,24 +1,26 @@
 import React from 'react';
 import './ProblemPanel.css';
 
-function PlaceholderExamples() {
+function Examples() {
   const examples = [
     {
       title: 'Example 1:',
-      input: 'nums = [3,2,4], target = 6',
-      output: '[1,2]',
-      explanation: 'Because nums[1] + nums[2] == 6, we return [1, 2].',
+      input: 'nums = [2,7,11,15], target = 9',
+      output: '[0,1]',
+      explanation:
+        'Because nums[0] + nums[1] == 9, we return [0, 1].',
     },
     {
       title: 'Example 2:',
       input: 'nums = [3,2,4], target = 6',
       output: '[1,2]',
-      explanation: 'Because nums[1] + nums[2] == 6, we return [1, 2].',
+      explanation:
+        'Because nums[1] + nums[2] == 6, we return [1, 2].',
     },
     {
       title: 'Example 3:',
-      input: 'nums = [3,2,4], target = 6',
-      output: '[1,2]',
+      input: 'nums = [3,3], target = 6',
+      output: '[0,1]',
       explanation: undefined,
     },
   ];
@@ -40,7 +42,7 @@ function PlaceholderExamples() {
 
 export default function ProblemPanel({ question }) {
   const title = question?.title || 'Two Sum';
-  const difficulty = question?.difficulty || '45 min';
+  const difficulty = (question?.difficulty || 'Easy').toString();
   const statement =
     question?.description ||
     'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.';
@@ -48,10 +50,8 @@ export default function ProblemPanel({ question }) {
   return (
     <div className="problem-panel">
       <div className="problem-header">
-        <div>
-          <div className="problem-title">{title}</div>
-          <div className="problem-meta">{difficulty}</div>
-        </div>
+        <div className="problem-title">{title}</div>
+        <div className={`difficulty-badge ${difficulty.toLowerCase()}`}>{difficulty}</div>
       </div>
 
       <div className="section">
@@ -61,7 +61,7 @@ export default function ProblemPanel({ question }) {
 
       <div className="section">
         <div className="section-title">Examples</div>
-        <PlaceholderExamples />
+        <Examples />
       </div>
     </div>
   );
