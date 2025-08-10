@@ -3,7 +3,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background-color: #111216; /* darker than editor to match contrast */
+  /* Use page background instead of forcing a panel background */
+  background-color: transparent;
   color: #cfd3dc;
   height: 100%;
   min-height: calc(100vh - 9rem);
@@ -14,9 +15,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background-color: #0d0f12;
-  border: 1px solid #1f2430;
-  border-radius: 8px;
+  /* Ultra subtle gradient */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.008) 50%, rgba(139, 179, 255, 0.012) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
 }
 
 .problem-title {
@@ -29,19 +33,42 @@
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
-  /* Match Example 1 title color */
-  color: #a16eff;
-  border: 1px solid #a16eff;
-  background: rgba(161, 110, 255, 0.12);
+  font-weight: 600;
+  border: 1px solid transparent;
+  text-transform: capitalize;
 }
-.difficulty-badge.easy { outline: none; }
+/* Match dashboard badge tones */
+.difficulty-badge.easy {
+  background: rgba(16, 185, 129, 0.18);
+  color: #a7f3d0;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+.difficulty-badge.medium {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+  border-color: rgba(245, 158, 11, 0.25);
+}
+.difficulty-badge.hard {
+  background: rgba(244, 63, 94, 0.18);
+  color: #fecdd3;
+  border-color: rgba(244, 63, 94, 0.25);
+}
 
 .section {
-  background-color: #0d0f12;
-  border: 1px solid #1f2430;
-  border-radius: 8px;
+  /* Dashboard base card colors */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(139, 179, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
   padding: 16px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Darker gradient only for the first section (Problem Statement) */
+.problem-panel .section:first-of-type {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.008) 50%, rgba(139, 179, 255, 0.012) 100%);
 }
 
 .section:last-of-type {
@@ -51,45 +78,51 @@
 }
 
 .section-title {
-  color: #aab2c5;
+  color: #ffffff;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 10px;
+  font-weight: 600;
 }
 
 .statement {
-  color: #cfd3dc;
-  line-height: 1.55;
+  color: #ffffff;
+  line-height: 1.6;
   font-size: 14px;
 }
 
 .examples {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 12px; /* align spacing with dashboard cards */
   flex: 1;
 }
 
 .example-card {
-  background-color: #111216;
-  border: 1px solid #1f2430;
-  border-radius: 6px;
-  padding: 10px 12px;
+  /* Dashboard base card colors */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(139, 179, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  padding: 16px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
 }
 
 .example-title {
-  color: #a16eff; /* darker purple */
+  /* Title styling aligned with dashboard card headings */
+  color: #ffffff;
   font-weight: 600;
-  margin-bottom: 6px;
-  font-size: 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 
-.k { color: #9ab9ff; margin-right: 6px; }
+.k { color: #cfcfcf; margin-right: 6px; font-weight: 500; }
 
-.v { color: #d7dcea; }
+.v { color: #ffffff; }
 
-.kv { font-size: 13px; margin: 3px 0; }
+.kv { font-size: 13px; margin: 4px 0; line-height: 1.5; }
 
 .interviewer-card {
   margin-top: auto;
@@ -97,9 +130,11 @@
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  background-color: #0d0f12;
-  border: 1px solid #1f2430;
-  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(139, 179, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
 }
 
 .avatar {
