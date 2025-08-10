@@ -89,7 +89,7 @@ function CodeEditor({question}) {
     useEffect(() => {
         setValue(getDefaultValue(selectedLanguage));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [question, selectedLanguage]);
+    }, [question?.id, selectedLanguage]);
 
     return (
         <div className="code-editor-container">
@@ -125,12 +125,13 @@ function CodeEditor({question}) {
             
             <div className="editor-wrapper">
                 <Editor
+                    key={`editor-${selectedLanguage}`}
                     height="60vh"
                     defaultLanguage={selectedLanguage}
                     language={selectedLanguage}
                     theme="interviewly-dark"
-                    value={value || getDefaultValue(selectedLanguage)}
-                    onChange={(value) => setValue(value)}
+                    value={value}
+                    onChange={(value) => setValue(value ?? "")}
                     beforeMount={beforeMount}
                     onMount={onMount}
                     options={{
