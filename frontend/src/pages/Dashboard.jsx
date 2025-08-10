@@ -4,7 +4,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip
 } from "recharts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartColumn, faChartLine, faListCheck, faBook, faClockRotateLeft, faWandMagicSparkles, faGear } from "@fortawesome/free-solid-svg-icons";
+import { faChartColumn, faChartLine, faListCheck, faBook, faClockRotateLeft, faWandMagicSparkles, faGear, faTag } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "../components/Navbar";
 import "./Dashboard.css";
 
@@ -215,6 +215,7 @@ export default function CodePage() {
                   {tags.length === 0 && <span className="text-muted">No tags yet.</span>}
                   {tags.map((t) => (
                     <span key={t} className="tag">
+                      <FontAwesomeIcon icon={faTag} className="tag__icon" />
                       <span className="tag__text">{t}</span>
                       <button className="tag__x" onClick={() => removeTag(t)} aria-label={`Remove ${t}`}>×</button>
                     </span>

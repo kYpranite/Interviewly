@@ -413,6 +413,11 @@
   font-size: 11px;
 }
 
+.tag__icon {
+  color: #cfcfcf;
+  font-size: 10px;
+}
+
 .tag__text {
   color: #fff;
 }
