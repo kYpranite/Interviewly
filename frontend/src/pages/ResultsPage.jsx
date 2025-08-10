@@ -108,19 +108,111 @@ export default function ResultsPage({
   }, [evaluation]);
 
   // Handler functions for buttons
+  const fetchTranscriptUrl = async (url) => {
+    // Try original URL first
+    try {
+      const resp = await fetch(url, { method: 'GET', mode: 'cors' });
+      if (resp.ok) return resp;
+      // fallthrough to try fixups
+    } catch {}
+
+    // If URL is an "appspot.com"/download style, ensure token param preserved
+    // If URL is a firebasestorage.app domain, attempt to rewrite to storage.googleapis.com
+    try {
+      const u = new URL(url);
+      // Legacy wrong bucket domain fix: switch host if needed
+      if (u.hostname.endsWith('firebasestorage.app')) {
+        u.hostname = 'firebasestorage.googleapis.com';
+      }
+
+      if (u.hostname === 'firebasestorage.googleapis.com') {
+        // Ensure alt=media for direct content
+        if (!u.searchParams.has('alt')) u.searchParams.set('alt', 'media');
+
+        // Fix incorrect bucket embedded in path if present
+        // Expected path format: /v0/b/{bucket}/o/...
+        const parts = u.pathname.split('/');
+        const bIndex = parts.findIndex(p => p === 'b');
+        if (bIndex !== -1 && parts[bIndex + 1]) {
+          const bucket = parts[bIndex + 1];
+          if (bucket.includes('.firebasestorage.app')) {
+            const fixedBucket = bucket.replace('.firebasestorage.app', '.appspot.com');
+            parts[bIndex + 1] = fixedBucket;
+            u.pathname = parts.join('/');
+          }
+        }
+
+        const alt2 = await fetch(u.toString(), { method: 'GET', mode: 'cors' });
+        if (alt2.ok) return alt2;
+      }
+    } catch {}
+
+    // As a last resort, use server proxy to bypass CORS and legacy URL issues
+    try {
+      const proxied = await fetch(`/api/proxy_transcript?url=${encodeURIComponent(url)}`, { method: 'GET' });
+      if (proxied.ok) return proxied;
+    } catch {}
+    throw new Error('fetch_failed');
+  };
+
   const handleViewTranscript = async () => {
+    // Open popup synchronously to avoid popup blockers
+    const transcriptWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+    if (!transcriptWindow) {
+      alert('Please allow popups for this site to view the transcript.');
+      return;
+    }
+
+    // Write a loading shell immediately
+    transcriptWindow.document.write(`
+      <html>
+        <head>
+          <title>Interview Transcript</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:20px; background:#1a1a1a; color:#e5e7eb; }
+            .header { border-bottom:2px solid #404040; padding:20px; border-radius:8px; margin:-20px -20px 25px -20px; background:linear-gradient(145deg,#262626,#1a1a1a); }
+            .header h1 { margin:0 0 10px 0; color:#60a5fa; font-size:1.8rem; }
+            .header p { margin:5px 0; color:#9ca3af; font-size:0.9rem; }
+            .container { max-width:800px; margin:0 auto; }
+            .loading { padding:24px; color:#9ca3af; font-style:italic; }
+            .message { margin-bottom:20px; padding:15px; border-radius:8px; border-left:4px solid; }
+            .user-message { background:linear-gradient(145deg,#1e3a8a,#1e40af); border-left-color:#60a5fa; }
+            .interviewer-message { background:linear-gradient(145deg,#065f46,#047857); border-left-color:#10b981; }
+            .role { font-weight:600; font-size:0.9rem; margin-bottom:8px; color:#fff; }
+            .content { font-size:0.95rem; white-space:pre-wrap; line-height:1.5; }
+            .transcript-content { white-space:pre-wrap; line-height:1.6; font-family:monospace; background:#262626; padding:20px; border-radius:8px; border:1px solid #404040; }
+            .no-transcript { text-align:center; color:#9ca3af; font-style:italic; padding:40px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>📝 Interview Transcript</h1>
+            <p><strong>Question:</strong> ${question_title || 'Unknown'}</p>
+            <p><strong>Language:</strong> ${language || 'Python'}</p>
+            <p><strong>Date:</strong> ${new Date(interviewStartTime || Date.now()).toLocaleString()}</p>
+          </div>
+          <div class="container" id="content">
+            <div class="loading">Loading transcript…</div>
+          </div>
+        </body>
+      </html>
+    `);
+    transcriptWindow.document.close();
+
     try {
       let transcriptData = transcript;
-      
-      // If we don't have transcript but have transcriptUrl, fetch it
       if (!transcriptData && transcriptUrl) {
-        const response = await fetch(transcriptUrl);
-        if (response.ok) {
+        const response = await fetchTranscriptUrl(transcriptUrl);
+        if (response && response.ok) {
+          const ct = response.headers.get('content-type') || '';
           const fetchedText = await response.text();
           try {
-            transcriptData = JSON.parse(fetchedText);
+            if (ct.includes('application/json')) {
+              transcriptData = JSON.parse(fetchedText);
+            } else {
+              transcriptData = JSON.parse(fetchedText);
+            }
           } catch {
-            // If parsing fails, treat as plain text
             transcriptData = fetchedText;
           }
         } else {
@@ -128,130 +220,27 @@ export default function ResultsPage({
         }
       }
 
-      if (transcriptData) {
-        console.log('Transcript data:', transcriptData);
-        
-        // Format transcript content based on data type
-        let formattedTranscript = '';
-        
-        if (Array.isArray(transcriptData)) {
-          // Handle array format with role/content objects
-          formattedTranscript = transcriptData.map(entry => {
-            const role = entry.role === 'user' ? 'Candidate' : 'Interviewer';
-            const roleClass = entry.role === 'user' ? 'user-message' : 'interviewer-message';
-            return `<div class="message ${roleClass}">
-              <div class="role">${role}:</div>
-              <div class="content">${entry.content}</div>
-            </div>`;
-          }).join('');
-        } else if (typeof transcriptData === 'string') {
-          // Handle plain string format
-          formattedTranscript = `<div class="transcript-content">${transcriptData}</div>`;
-        } else {
-          // Handle other formats
-          formattedTranscript = `<div class="transcript-content">${JSON.stringify(transcriptData, null, 2)}</div>`;
-        }
+      let formattedTranscript = '';
+      if (Array.isArray(transcriptData)) {
+        formattedTranscript = transcriptData.map(entry => {
+          const role = entry.role === 'user' ? 'Candidate' : 'Interviewer';
+          const roleClass = entry.role === 'user' ? 'user-message' : 'interviewer-message';
+          return `<div class="message ${roleClass}">\n  <div class="role">${role}:</div>\n  <div class="content">${entry.content}</div>\n</div>`;
+        }).join('');
+      } else if (typeof transcriptData === 'string') {
+        formattedTranscript = `<div class="transcript-content">${transcriptData}</div>`;
+      } else if (transcriptData) {
+        formattedTranscript = `<div class="transcript-content">${JSON.stringify(transcriptData, null, 2)}</div>`;
+      }
 
-        // Create a new window to display the transcript
-        const transcriptWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
-        transcriptWindow.document.write(`
-          <html>
-            <head>
-              <title>Interview Transcript</title>
-              <style>
-                body { 
-                  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-                  margin: 0;
-                  padding: 20px; 
-                  background: #1a1a1a; 
-                  color: #e5e7eb; 
-                  line-height: 1.6;
-                }
-                .header { 
-                  border-bottom: 2px solid #404040; 
-                  padding-bottom: 15px; 
-                  margin-bottom: 25px; 
-                  background: linear-gradient(145deg, #262626, #1a1a1a);
-                  padding: 20px;
-                  border-radius: 8px;
-                  margin: -20px -20px 25px -20px;
-                }
-                .header h1 { 
-                  margin: 0 0 10px 0; 
-                  color: #60a5fa; 
-                  font-size: 1.8rem;
-                }
-                .header p { 
-                  margin: 5px 0; 
-                  color: #9ca3af; 
-                  font-size: 0.9rem;
-                }
-                .transcript-container {
-                  max-width: 800px;
-                  margin: 0 auto;
-                }
-                .message {
-                  margin-bottom: 20px;
-                  padding: 15px;
-                  border-radius: 8px;
-                  border-left: 4px solid;
-                }
-                .user-message {
-                  background: linear-gradient(145deg, #1e3a8a, #1e40af);
-                  border-left-color: #60a5fa;
-                }
-                .interviewer-message {
-                  background: linear-gradient(145deg, #065f46, #047857);
-                  border-left-color: #10b981;
-                }
-                .role {
-                  font-weight: 600;
-                  font-size: 0.9rem;
-                  margin-bottom: 8px;
-                  color: #ffffff;
-                }
-                .content {
-                  font-size: 0.95rem;
-                  white-space: pre-wrap;
-                  line-height: 1.5;
-                }
-                .transcript-content { 
-                  white-space: pre-wrap; 
-                  line-height: 1.6;
-                  font-family: monospace;
-                  background: #262626;
-                  padding: 20px;
-                  border-radius: 8px;
-                  border: 1px solid #404040;
-                }
-                .no-transcript {
-                  text-align: center;
-                  color: #9ca3af;
-                  font-style: italic;
-                  padding: 40px;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="header">
-                <h1>📝 Interview Transcript</h1>
-                <p><strong>Question:</strong> ${question_title || 'Unknown'}</p>
-                <p><strong>Language:</strong> ${language || 'Python'}</p>
-                <p><strong>Date:</strong> ${new Date(interviewStartTime || Date.now()).toLocaleString()}</p>
-              </div>
-              <div class="transcript-container">
-                ${formattedTranscript || '<div class="no-transcript">No transcript content available</div>'}
-              </div>
-            </body>
-          </html>
-        `);
-        transcriptWindow.document.close();
-      } else {
-        alert('No transcript available for this session.');
+      const container = transcriptWindow.document.getElementById('content');
+      if (container) {
+        container.innerHTML = formattedTranscript || '<div class="no-transcript">No transcript content available</div>';
       }
     } catch (error) {
       console.error('Error viewing transcript:', error);
-      alert('Error loading transcript. Please try again.');
+      const container = transcriptWindow.document.getElementById('content');
+      if (container) container.innerHTML = '<div class="no-transcript">Error loading transcript. Please try again.</div>';
     }
   };
 

@@ -70,8 +70,8 @@ export function useSessions() {
       // Create storage reference
       const storageRef = ref(storage, `transcripts/${user.uid}/${sessionId}.json`);
       
-      // Upload file
-      await uploadBytes(storageRef, blob);
+  // Upload file with explicit content type
+  await uploadBytes(storageRef, blob, { contentType: 'application/json' });
       
       // Get download URL
       const downloadURL = await getDownloadURL(storageRef);
