@@ -3,13 +3,13 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET, // *.appspot.com
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyD7yqceXImF0RUHODrD6jcYCIZAUM1GkaE",
+  authDomain: "interviewly-cb4ad.firebaseapp.com",
+  projectId: "interviewly-cb4ad",
+  storageBucket: "interviewly-cb4ad.firebasestorage.app",
+  messagingSenderId: "161349235243",
+  appId: "1:161349235243:web:23f23c8c91e632e97df06e",
+  measurementId: "G-VM97RCV935",
 };
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
