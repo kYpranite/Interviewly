@@ -16,6 +16,22 @@
     border-bottom: 1px solid #464647;
 }
 
+.mode-tabs { display: flex; gap: 8px; }
+.mode-tab {
+    background: none;
+    border: 1px solid #464647;
+    color: #cccccc;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.mode-tab.active {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #007acc;
+}
+.mode-tab:disabled { opacity: .5; cursor: not-allowed; }
+
 .action-buttons {
     display: flex;
     gap: 8px;

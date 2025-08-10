@@ -1,24 +1,32 @@
 import Editor from "@monaco-editor/react";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import LanguageSelector from "./LanguageSelector";
 import OutputBox from "./OutputBox";
-import DEFAULT_CODE_TEMPLATES from "./defaultCodeTemplates";
 import "./CodeEditor.css";
 
-function CodeEditor() {
+function CodeEditor({question}) {
     const editorRef = useRef();
     const [selectedLanguage, setSelectedLanguage] = useState("python");
     const [value, setValue] = useState("");
     const [output, setOutput] = useState("");
     const [isRunning, setIsRunning] = useState(false);
-    
+
+    // Convert literal escape sequences ("\n", "\r\n", "\t") into actual characters
+    const unescapeTemplate = (s) => {
+        if (typeof s !== 'string') return s ?? '';
+        return s
+            .replaceAll('\\r\\n', '\n')
+            .replaceAll('\\n', '\n')
+            .replaceAll('\\t', '\t');
+    };
+
+    const getDefaultValue = (language) => {
+        return unescapeTemplate(question.templates[language]);
+    };
+
     const onMount = (editor) => {
         editorRef.current = editor;
         editor.focus();
-    };
-    
-    const getDefaultValue = (language) => {
-        return DEFAULT_CODE_TEMPLATES[language] || "// Write your code here";
     };
 
     const handleLanguageChange = (newLanguage) => {
@@ -35,7 +43,8 @@ function CodeEditor() {
         setIsRunning(true);
         setOutput("Running...");
         try {
-            const code = editorRef.current.getValue();
+            const code = editorRef.current?.getValue?.() ?? value ?? "";
+            console.log("Running code:", code);
             const res = await fetch("/api/code/run", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -44,6 +53,7 @@ function CodeEditor() {
                     language: selectedLanguage
                 })
             });
+            console.log(res)
             const result = await res.json();
             setOutput(result?.run?.output || JSON.stringify(result));
         } catch (error) {
@@ -52,9 +62,19 @@ function CodeEditor() {
         setIsRunning(false);
     };
 
+    // Initialize the editor value when the question is available or language changes
+    useEffect(() => {
+        setValue(getDefaultValue(selectedLanguage));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [question, selectedLanguage]);
+
     return (
         <div className="code-editor-container">
             <div className="editor-header">
+                <div className="mode-tabs" role="tablist">
+                    <button className="mode-tab active" type="button">Code</button>
+                    <button className="mode-tab" type="button" disabled>Notebook</button>
+                </div>
                 <LanguageSelector 
                     selectedLanguage={selectedLanguage}
                     onLanguageChange={handleLanguageChange}
@@ -90,7 +110,7 @@ function CodeEditor() {
                     onChange={(value) => setValue(value)}
                     onMount={onMount}
                     options={{
-                        fontSize: 18,
+                        fontSize: 14,
                         fontFamily: "'Fira Code', 'Consolas', 'Monaco', monospace",
                         minimap: { enabled: false }
                     }}
