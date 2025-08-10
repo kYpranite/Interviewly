@@ -39,7 +39,13 @@ export default function CodePage() {
 
   return (
     <div className="code-page">
-      <CallTile name="Chris Hogan" title="Principal Engineer" active={aiSpeaking} />
+      <CallTile
+        name="LeBron James"
+        title="Principal Engineer"
+        active={aiSpeaking}
+        // Optionally set a default LeBron image URL here
+        // avatarUrl="/lebron.jpg"
+      />
       <Navbar />
 
       <main className="content">
