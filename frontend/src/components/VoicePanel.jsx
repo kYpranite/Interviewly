@@ -30,7 +30,8 @@ const styles = {
 		border: '1px solid #eee',
 		borderRadius: 6,
 		padding: '0.5rem',
-		fontSize: 14
+		fontSize: 14,
+		textAlign: 'left'
 	},
 	label: { fontWeight: 600 }
 };
