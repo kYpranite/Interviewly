@@ -1,0 +1,111 @@
+/* Zoom-like draggable call tile */
+.call-wrap {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 30;
+  will-change: transform;
+}
+.call-wrap.grabbing { cursor: grabbing; }
+
+.call-card {
+  position: relative;
+  width: 320px;
+  background: #1b1f26;
+  border: 2px solid #2b3442;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+  padding: 18px 18px 16px;
+  color: #e7ebf3;
+  user-select: none;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 0;
+  background: #101318;
+  color: #c9d8f0;
+  font-size: 18px;
+  line-height: 28px;
+  cursor: pointer;
+}
+.close-btn:hover { background: #0c1016; }
+
+.speaking-pill {
+  position: absolute;
+  top: 10px; left: 12px;
+  background: #0e223a;
+  border: 1px solid #214266;
+  color: #a5c8ff;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 220ms ease-in-out, transform 220ms ease-in-out, box-shadow 220ms ease-in-out;
+}
+.speaking-pill .dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #3aa0ff;
+}
+
+/* Smooth breathing animation when active */
+.speaking-pill.active { opacity: 1; animation: pillBreath 1.6s ease-in-out infinite; }
+@keyframes pillBreath {
+  0%   { transform: translateY(0); box-shadow: 0 0 0 0 rgba(58,160,255,0.15); }
+  50%  { transform: translateY(-1px); box-shadow: 0 0 0 6px rgba(58,160,255,0.05); }
+  100% { transform: translateY(0); box-shadow: 0 0 0 0 rgba(58,160,255,0.15); }
+}
+
+.avatar {
+  margin: 14px auto 10px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  position: relative;
+  display: grid; place-items: center;
+  overflow: visible;
+}
+.avatar img, .avatar .avatar-fallback {
+  width: 116px; height: 116px; border-radius: 50%; object-fit: cover;
+  display: block;
+}
+.avatar .avatar-fallback {
+  background: #0f141c; border: 1px solid #283041;
+  display: grid; place-items: center;
+}
+.avatar .initials {
+  font-weight: 700;
+  color: #cde1ff;
+  font-size: 36px; /* slightly smaller */
+  letter-spacing: 0.5px;
+}
+
+.avatar .ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 240ms ease-in-out;
+}
+.avatar.active { outline: 2px solid #3aa0ff; outline-offset: 6px; border-radius: 50%; }
+.avatar.active .ring { opacity: 1; }
+
+/* Soft pulsing halo around avatar when active */
+.avatar.active .ring {
+  animation: ringPulse 1.8s ease-in-out infinite;
+}
+@keyframes ringPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(58,160,255,0.35); transform: scale(1); opacity: 1; }
+  70%  { box-shadow: 0 0 0 14px rgba(58,160,255,0.0); transform: scale(1.02); opacity: 0.85; }
+  100% { box-shadow: 0 0 0 0 rgba(58,160,255,0.0); transform: scale(1); opacity: 1; }
+}
+
+.meta { text-align: center; }
+.meta .name { font-size: 18px; font-weight: 700; color: #ffffff; }
+.meta .title { font-size: 13px; color: #b7c2d6; margin-top: 2px; }

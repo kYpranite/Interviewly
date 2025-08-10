@@ -1,0 +1,16 @@
+/* src/globals.css */
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; margin: 0; }
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #fff;
+  background: #000; /* your pages override with gradients/dark bg as needed */
+}
+
+/* Optional: heading polish similar to v0 */
+h1, h2 { letter-spacing: -0.02em; }

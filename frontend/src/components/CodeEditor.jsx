@@ -24,8 +24,27 @@ function CodeEditor({question}) {
         return unescapeTemplate(question.templates[language]);
     };
 
-    const onMount = (editor) => {
+    const beforeMount = (monaco) => {
+        monaco.editor.defineTheme('interviewly-dark', {
+            base: 'vs-dark',
+            inherit: true,
+            rules: [],
+            colors: {
+                'editor.background': '#0d0f12',
+                'editorGutter.background': '#0d0f12',
+                'editorLineNumber.foreground': '#6b7385',
+                'editorLineNumber.activeForeground': '#a7b1c9',
+                'editor.selectionBackground': '#20304a',
+                'editor.inactiveSelectionBackground': '#1a263b',
+                'editor.lineHighlightBackground': '#11131a',
+                'editorCursor.foreground': '#d4d4d4',
+            },
+        });
+    };
+
+    const onMount = (editor, monaco) => {
         editorRef.current = editor;
+        monaco.editor.setTheme('interviewly-dark');
         editor.focus();
     };
 
@@ -109,9 +128,10 @@ function CodeEditor({question}) {
                     height="60vh"
                     defaultLanguage={selectedLanguage}
                     language={selectedLanguage}
-                    theme="vs-dark"
+                    theme="interviewly-dark"
                     value={value || getDefaultValue(selectedLanguage)}
                     onChange={(value) => setValue(value)}
+                    beforeMount={beforeMount}
                     onMount={onMount}
                     options={{
                         fontSize: 14,
