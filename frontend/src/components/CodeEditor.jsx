@@ -14,6 +14,7 @@ const CodeEditor = forwardRef(({ question, onLanguageChange }, ref) => {
     const [isRunning, setIsRunning] = useState(false);
     const [activeMode, setActiveMode] = useState("code");
     const lastSentRef = useRef("");
+    const lastQuestionKeyRef = useRef(null);
     const clientIdRef = useRef(getClientId());
 
     // Expose methods to parent component via ref
@@ -119,9 +120,18 @@ const CodeEditor = forwardRef(({ question, onLanguageChange }, ref) => {
             try {
                 const code = editorRef.current?.getValue?.() ?? value ?? "";
                 const trimmed = (code || "").trim();
-                if (!trimmed) return; // don't send empty
+                const hasCode = !!trimmed;
+                const qKey = question?.id ?? `${question?.title ?? ''}|${question?.function ?? ''}|${Array.isArray(question?.args) ? question.args.join(',') : ''}`;
 
-                // Avoid resending identical content
+                // If no code yet, still send question context once per question change
+                if (!hasCode) {
+                    if (qKey && lastQuestionKeyRef.current === qKey) return;
+                    lastQuestionKeyRef.current = qKey;
+                    await updateAIContext({ code, language: selectedLanguage, question }, clientIdRef.current);
+                    return;
+                }
+
+                // Avoid resending identical code content
                 if (lastSentRef.current === trimmed) return;
                 lastSentRef.current = trimmed;
 
