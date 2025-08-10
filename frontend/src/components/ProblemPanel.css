@@ -23,11 +23,16 @@
   font-weight: 600;
 }
 
-.problem-meta {
-  color: #8a93a5;
+.difficulty-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
   font-size: 12px;
-  margin-top: 2px;
+  /* Match Example 1 title color */
+  color: #a16eff;
+  border: 1px solid #a16eff;
+  background: rgba(161, 110, 255, 0.12);
 }
+.difficulty-badge.easy { outline: none; }
 
 .section {
   background-color: #0d0f12;
@@ -64,16 +69,13 @@
 }
 
 .example-title {
-  color: #7ea6ff;
+  color: #a16eff; /* darker purple */
   font-weight: 600;
   margin-bottom: 6px;
   font-size: 12px;
 }
 
-.k {
-  color: #7ea6ff; /* cyan/blue key label */
-  margin-right: 6px;
-}
+.k { color: #9ab9ff; margin-right: 6px; }
 
 .v { color: #d7dcea; }
 
