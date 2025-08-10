@@ -18,31 +18,14 @@
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
   padding: 16px;
   margin-bottom: 12px;
-.code-page .page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  /* Ultra subtle gradient */
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.008) 50%, rgba(139, 179, 255, 0.012) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 12px;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
-  padding: 16px;
-  margin-bottom: 12px;
 }
-.code-page .page-title {
-  color: #e6eaf2; /* match .problem-title */
-  font-size: 18px; /* match problem-title size */
-  font-weight: 600;
-}
+
 .code-page .page-title {
   color: #e6eaf2; /* match .problem-title */
   font-size: 18px; /* match problem-title size */
   font-weight: 600;
 }
 
-.code-page .header-controls {
 .code-page .header-controls {
   display: flex;
   align-items: center;
@@ -56,27 +39,14 @@
   padding: 6px 10px;
   border-radius: 12px;
   font-size: 12px;
-.code-page .timer {
-  color: #a5c8ff;
-  background: #0e223a;
-  border: 1px solid #214266;
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-size: 12px;
 }
 
-.code-page .grid { display:grid; grid-template-columns:400px 1fr; gap:12px; min-height:calc(100vh - 9rem); }
-.code-page .left { min-width:400px; max-width:400px; }
-.code-page .right { min-width:0; }
 .code-page .grid { display:grid; grid-template-columns:400px 1fr; gap:12px; min-height:calc(100vh - 9rem); }
 .code-page .left { min-width:400px; max-width:400px; }
 .code-page .right { min-width:0; }
 
 /* Tablet and smaller desktop breakpoint */
 @media (max-width:1200px){ 
-  .code-page .grid{ grid-template-columns:350px 1fr; gap:16px; } 
-  .code-page .left{ min-width:350px; max-width:350px; }
-  .code-page .content { padding:12px; }
   .code-page .grid{ grid-template-columns:350px 1fr; gap:16px; } 
   .code-page .left{ min-width:350px; max-width:350px; }
   .code-page .content { padding:12px; }
@@ -88,19 +58,13 @@
   .code-page .left{ order:1; max-width:none; min-width:0; } 
   .code-page .right{ order:2; }
   .code-page .content { padding:16px; }
-  .code-page .grid{ grid-template-columns:1fr; } 
-  .code-page .left{ order:1; max-width:none; min-width:0; } 
-  .code-page .right{ order:2; }
-  .code-page .content { padding:16px; }
   
-  .code-page .page-header {
   .code-page .page-header {
     flex-direction: column;
     gap: 8px;
     align-items: stretch;
   }
   
-  .code-page .header-controls {
   .code-page .header-controls {
     justify-content: space-between;
   }
