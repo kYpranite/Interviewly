@@ -19,28 +19,6 @@
   padding:6px 10px; border-radius:12px; font-size:12px;
 }
 
-.end-interview-btn {
-  background: #dc3545;
-  color: white;
-  border: 1px solid #b02a37;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.end-interview-btn:hover {
-  background: #c82333;
-  border-color: #a02834;
-  transform: translateY(-1px);
-}
-
-.end-interview-btn:active {
-  transform: translateY(0);
-}
-
 .grid { display:grid; grid-template-columns:400px 1fr; gap:12px; min-height:calc(100vh - 9rem); }
 .left { min-width:400px; max-width:400px; }
 .right { min-width:0; }

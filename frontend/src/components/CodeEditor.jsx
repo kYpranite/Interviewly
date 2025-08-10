@@ -142,14 +142,14 @@ function CodeEditor({question}) {
             <div className="editor-header">
                 <div className="mode-tabs" role="tablist">
                     <button 
-                        className={`mode-tab ${activeMode === "code" ? "active" : ""}`} 
+                        className={`btn btn--sm ${activeMode === "code" ? "btn--primary" : "btn--ghost"}`} 
                         type="button"
                         onClick={() => handleModeChange("code")}
                     >
                         Code
                     </button>
                     <button 
-                        className={`mode-tab ${activeMode === "notebook" ? "active" : ""}`} 
+                        className={`btn btn--sm ${activeMode === "notebook" ? "btn--primary" : "btn--ghost"}`} 
                         type="button"
                         onClick={() => handleModeChange("notebook")}
                     >
@@ -162,14 +162,14 @@ function CodeEditor({question}) {
                 />
                 <div className="action-buttons">
                     <button 
-                        className="action-button reset-button"
+                        className="btn btn--ghost"
                         onClick={handleReset}
                         type="button"
                     >
                         Reset
                     </button>
                     <button 
-                        className="action-button run-button"
+                        className="btn btn--cta"
                         onClick={handleRun}
                         disabled={isRunning}
                         type="button"

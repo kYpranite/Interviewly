@@ -1,15 +1,29 @@
 .home-page { min-height: 100vh; color:#fff; background: linear-gradient(to bottom,#000,#171717,#000); }
 .container { max-width: 72rem; margin: 0 auto; padding: 0 16px; }
-.hero { min-height: calc(100vh - 56px); display: grid; place-items: center; text-align: center; }
+.hero { min-height: calc(100vh - 56px); display: grid; place-items: center; text-align: center; margin: 40px 15px;}
 .hero-inner { max-width: 60rem; }
 @media (min-width:1024px){ .hero-inner{ max-width:66rem; } }
 .hero-title { font-weight:700; line-height:1.14; letter-spacing:-0.015em; font-size:clamp(40px,6.5vw,68px); margin:0 0 14px; }
 .nowrap { white-space: nowrap; }
 .hero-subtitle { margin:14px auto 0; color:#d4d4d4; font-size:clamp(16px,2.2vw,20px); max-width:40rem; }
 .cta { padding-top:32px; }
-.btn { display:inline-flex; align-items:center; gap:8px; height:48px; padding:0 28px; border-radius:8px; background:#fff; color:#000; font-weight:600; font-size:15px; box-shadow:0 8px 24px rgba(0,0,0,.45); transition:transform .15s, box-shadow .15s, background .15s; text-decoration:none; border:none; }
-.btn:hover { background:#e5e5e5; box-shadow:0 12px 36px rgba(0,0,0,.55); transform: translateY(-2px); }
-.btn:active { transform: translateY(0); }
+/* Home page specific button size override */
+.btn {
+  height: 48px;
+  padding: 0 28px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+}
+/* Force a subtle border on the homepage CTA regardless of global order */
+.home-page .cta .btn { border: 1px solid rgba(255,255,255,.22) !important; }
+.btn:hover {
+  box-shadow: 0 12px 36px rgba(0,0,0,.55);
+  transform: translateY(-2px);
+}
+.btn:active { 
+  transform: translateY(0); 
+}
 .icon { margin-left:6px; }
 .hide-sm { display:none; }
 @media (min-width:640px){ .hide-sm{ display:inline; } }

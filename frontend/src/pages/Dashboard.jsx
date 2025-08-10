@@ -1,8 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip
 } from "recharts";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChartColumn, faChartLine, faListCheck, faBook, faClockRotateLeft, faWandMagicSparkles, faGear } from "@fortawesome/free-solid-svg-icons";
+import Navbar from "../components/Navbar";
 import "./Dashboard.css";
 
 /* ---- sample data ---- */
@@ -30,9 +33,9 @@ function ToneBadge({ tone = "neutral", children }) {
 
 export default function CodePage() {
   // settings
-  const [lang, setLang] = useState("ts");
+  const [lang, setLang] = useState("py");
   const [timeLimit, setTimeLimit] = useState(45);
-  const [diff, setDiff] = useState("medium");
+  const [diff, setDiff] = useState("random");
   const [tags, setTags] = useState(["arrays", "two-pointers"]);
 
   // modal state
@@ -40,6 +43,27 @@ export default function CodePage() {
   const [draftLang, setDraftLang] = useState(lang);
   const [draftDiff, setDraftDiff] = useState(diff);
   const [draftTime, setDraftTime] = useState(timeLimit);
+
+  // tag menu state
+  const [tagMenuOpen, setTagMenuOpen] = useState(false);
+  const tagMenuRef = useRef(null);
+
+  // Close tag menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tagMenuRef.current && !tagMenuRef.current.contains(event.target)) {
+        setTagMenuOpen(false);
+      }
+    };
+
+    if (tagMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [tagMenuOpen]);
 
   // chart data
   const LAST_5 = useMemo(() => {
@@ -64,6 +88,7 @@ export default function CodePage() {
   return (
     <div className="dash">
       <div className="dash__bg" />
+      <Navbar />
       <main className="dash__container">
         {/* Header */}
         <header className="dash__header">
@@ -78,7 +103,10 @@ export default function CodePage() {
           {/* Graph card */}
           <div className="card lg-span-5">
             <div className="card__head">
-              <div className="card__title">Graph progress</div>
+              <div className="card__title">
+                <FontAwesomeIcon icon={faChartLine} className="mr-8" size="sm" />
+                Graph progress
+              </div>
               <div className="card__desc">Last 5 attempts (score out of 100)</div>
             </div>
             <div className="card__body">
@@ -92,8 +120,8 @@ export default function CodePage() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-                    <XAxis dataKey="attempt" tick={{ fill: "#cfcfcf" }} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, 100]} ticks={[0,20,40,60,80,100]} tick={{ fill: "#cfcfcf" }} axisLine={false} tickLine={false} />
+                    <XAxis dataKey="attempt" tick={{ fill: "#cfcfcf", fontSize: 11, fontFamily: "'Inter', system-ui, -apple-system, sans-serif", fontWeight: 400 }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, 100]} ticks={[0,20,40,60,80,100]} tick={{ fill: "#cfcfcf", fontSize: 11, fontFamily: "'Inter', system-ui, -apple-system, sans-serif", fontWeight: 400 }} axisLine={false} tickLine={false} />
                     <Tooltip
                       cursor={{ stroke: "rgba(255,255,255,0.15)" }}
                       contentStyle={{
@@ -114,7 +142,10 @@ export default function CodePage() {
           {/* Recommendations */}
           <div className="card lg-span-7">
             <div className="card__head">
-              <div className="card__title">Recommended problems</div>
+              <div className="card__title">
+                <FontAwesomeIcon icon={faListCheck} className="mr-8" size="sm" />
+                Recommended problems
+              </div>
               <div className="card__desc">Short focused exercises based on your history</div>
             </div>
             <div className="card__body">
@@ -146,54 +177,97 @@ export default function CodePage() {
         {/* Generate + Tags */}
         <section className="card card--gradient mb-24">
           <div className="card__head">
-            <div className="card__title">Generate interview</div>
+            <div className="card__title">
+              <FontAwesomeIcon icon={faBook} className="mr-8" size="sm" />
+              Generate interview
+            </div>
             <div className="card__desc">Use your current settings and tags to create a new mock interview.</div>
           </div>
-          <div className="card__body space-16">
-            <div className="row wrap gap-12">
-              <div className="text-muted">
-                Difficulty: <span className="text-strong capitalize">{diff}</span> • Language:{" "}
-                <span className="text-strong">
-                  {lang === "ts" ? "TypeScript" : lang === "py" ? "Python" : lang === "java" ? "Java" : "C++"}
-                </span>{" "}
-                • Time: <span className="text-strong">{timeLimit} min</span>
-              </div>
-              <button
-                className="btn btn--outline ml-auto"
-                onClick={() => { setDraftLang(lang); setDraftDiff(diff); setDraftTime(timeLimit); setOpen(true); }}
-              >
-                Edit settings
-              </button>
-              <Link to={interviewLink} className="btn btn--cta">Generate interview</Link>
-            </div>
-
-            {/* Tags */}
-            <div>
-              <label className="label">Current tags</label>
-              <div className="row wrap gap-8">
-                {tags.length === 0 && <span className="text-muted">No tags yet.</span>}
-                {tags.map((t) => (
-                  <span key={t} className="tag">
-                    <span className="tag__text">{t}</span>
-                    <button className="tag__x" onClick={() => removeTag(t)} aria-label={`Remove ${t}`}>×</button>
-                  </span>
-                ))}
-              </div>
-
-              <div className="row wrap gap-12 mt-12">
-                <div className="row gap-8">
-                  <span className="help">Company</span>
-                  <select defaultValue="" onChange={(e) => e.target.value && addTag(e.target.value)} className="select">
-                    <option value="" disabled>Select…</option>
-                    {COMPANY_TAGS.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+          <div className="card__body">
+            <div className="interview-settings__content">
+              <div className="interview-settings__row">
+                <div className="interview-settings__info">
+                  <span>Difficulty: <span className="interview-settings__info-text">{diff}</span></span>
+                  <span className="interview-settings__bullet">•</span>
+                  <span>Language: <span className="interview-settings__info-text">Python</span></span>
+                  <span className="interview-settings__bullet">•</span>
+                  <span>Time: <span className="interview-settings__info-text">{timeLimit} min</span></span>
                 </div>
-                <div className="row gap-8">
-                  <span className="help">Type</span>
-                  <select defaultValue="" onChange={(e) => e.target.value && addTag(e.target.value)} className="select">
-                    <option value="" disabled>Select…</option>
-                    {TYPE_TAGS.map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
+                <div className="interview-settings__actions">
+                  <button
+                    className="btn btn--outline"
+                    onClick={() => { setDraftLang(lang); setDraftDiff(diff); setDraftTime(timeLimit); setOpen(true); }}
+                  >
+                    <FontAwesomeIcon icon={faGear} className="mr-4" size="sm" />
+                    Edit settings
+                  </button>
+                  <Link to={interviewLink} className="btn btn--cta">
+                    <FontAwesomeIcon icon={faWandMagicSparkles} className="mr-4" size="sm" />
+                    Generate interview
+                  </Link>
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className="label">Current tags</label>
+                <div className="row wrap gap-8 tags">
+                  {tags.length === 0 && <span className="text-muted">No tags yet.</span>}
+                  {tags.map((t) => (
+                    <span key={t} className="tag">
+                      <span className="tag__text">{t}</span>
+                      <button className="tag__x" onClick={() => removeTag(t)} aria-label={`Remove ${t}`}>×</button>
+                    </span>
+                  ))}
+                </div>
+
+                <div className="row wrap gap-12 mt-12">
+                  <div className="tag-menu-wrapper" ref={tagMenuRef}>
+                    <button 
+                      className="btn btn--outline"
+                      onClick={() => setTagMenuOpen(!tagMenuOpen)}
+                    >
+                      Add a tag
+                    </button>
+                    {tagMenuOpen && (
+                      <div className="tag-menu">
+                        <div className="tag-menu__category">
+                          Company
+                          <div className="tag-menu__submenu">
+                            {COMPANY_TAGS.map(company => (
+                              <button
+                                key={company}
+                                className="tag-menu__option"
+                                onClick={() => {
+                                  addTag(company);
+                                  setTagMenuOpen(false);
+                                }}
+                              >
+                                {company}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="tag-menu__category">
+                          Type of problem
+                          <div className="tag-menu__submenu">
+                            {TYPE_TAGS.map(type => (
+                              <button
+                                key={type}
+                                className="tag-menu__option"
+                                onClick={() => {
+                                  addTag(type);
+                                  setTagMenuOpen(false);
+                                }}
+                              >
+                                {type}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -203,7 +277,10 @@ export default function CodePage() {
         {/* Past problems */}
         <section className="card">
           <div className="card__head">
-            <div className="card__title">Past problems</div>
+            <div className="card__title">
+              <FontAwesomeIcon icon={faClockRotateLeft} className="mr-8" size="sm" />
+              Past problems
+            </div>
             <div className="card__desc">Recent attempts and results</div>
           </div>
           <div className="card__body">
@@ -242,14 +319,12 @@ export default function CodePage() {
             <div className="form-grid mt-16">
               <label>Language</label>
               <select value={draftLang} onChange={(e)=>setDraftLang(e.target.value)} className="select">
-                <option value="ts">TypeScript</option>
                 <option value="py">Python</option>
-                <option value="java">Java</option>
-                <option value="cpp">C++</option>
               </select>
 
               <label>Difficulty</label>
               <select value={draftDiff} onChange={(e)=>setDraftDiff(e.target.value)} className="select">
+                <option value="random">Random</option>
                 <option value="easy">Easy</option>
                 <option value="medium">Medium</option>
                 <option value="hard">Hard</option>

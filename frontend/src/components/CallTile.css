@@ -19,23 +19,7 @@
   user-select: none;
 }
 
-.close-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: 0;
-  background: #101318;
-  color: #c9d8f0;
-  font-size: 18px;
-  line-height: 28px;
-  cursor: pointer;
-}
-.close-btn:hover { background: #0c1016; }
-
-/* photo button removed; always using fixed avatar URL */
+/* Close button now uses global .btn classes with inline styles */
 
 .speaking-pill {
   position: absolute;

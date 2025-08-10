@@ -55,7 +55,7 @@ export default function Login() {
   return (
     <div className="auth-wrap">
       <button
-        className="google-btn"
+        className="btn btn--primary"
         onClick={handleGoogle}
         disabled={busy}
         aria-label="Continue with Google"

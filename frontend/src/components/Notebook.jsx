@@ -16,8 +16,8 @@ export default function Notebook() {
   return (
     <div className="notebook">
       <div className="nb-toolbar">
-        <button className="nb-btn" onClick={() => addCell('markdown')} type="button">+ Text</button>
-        <button className="nb-btn" onClick={() => addCell('code')} type="button">+ Code (pseudo)</button>
+        <button className="btn btn--sm btn--outline" onClick={() => addCell('markdown')} type="button">+ Text</button>
+        <button className="btn btn--sm btn--outline" onClick={() => addCell('code')} type="button">+ Code (pseudo)</button>
       </div>
       <div className="nb-content">
         {cells.map((cell, i) => (

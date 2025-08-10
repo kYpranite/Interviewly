@@ -26,7 +26,7 @@ export default function CodePage() {
       console.log("Interview transcript:", interviewTranscript);
       
       
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 
@@ -78,7 +78,7 @@ export default function CodePage() {
           <div className="header-controls">
             <span className="timer" aria-live="polite">{timeDisplay}</span>
             <button 
-              className="end-interview-btn" 
+              className="btn btn--danger" 
               onClick={handleEndInterview}
               aria-label="End interview"
             >

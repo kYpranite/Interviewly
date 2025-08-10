@@ -99,7 +99,7 @@ export default function LoginModal({ isOpen, onClose, redirectTo = "/code" }) {
 
         <div className="modal-body">
           <button
-            className="google-btn"
+            className="btn btn--primary"
             onClick={handleGoogle}
             disabled={busy}
             aria-label="Continue with Google"

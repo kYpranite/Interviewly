@@ -31,11 +31,11 @@ export default function Navbar() {
         </Link>
 
         {user ? (
-          <button className="nav-link nav-btn" onClick={handleLogout}>
+          <button className="btn btn--md nav-auth-btn" onClick={handleLogout}>
             Log out
           </button>
         ) : (
-          <button className="nav-link nav-btn" onClick={handleLoginClick}>
+          <button className="btn btn--ghost btn--md" onClick={handleLoginClick}>
             Log in
           </button>
         )}

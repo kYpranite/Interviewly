@@ -62,11 +62,11 @@ export default function Whiteboard() {
   return (
     <div className="whiteboard-wrap">
       <div className="whiteboard-toolbar">
-        <button className="wb-btn" onClick={() => setTool('pen')} style={{background: tool==='pen'?'#0e639c':'#2a2a2a'}}>Pen</button>
-        <button className="wb-btn" onClick={() => setTool('eraser')} style={{background: tool==='eraser'?'#0e639c':'#2a2a2a'}}>Eraser</button>
+        <button className="btn btn--sm btn--ghost" onClick={() => setTool('pen')} style={{background: tool==='pen'?'#0e639c':'transparent'}}>Pen</button>
+        <button className="btn btn--sm btn--ghost" onClick={() => setTool('eraser')} style={{background: tool==='eraser'?'#0e639c':'transparent'}}>Eraser</button>
         <input type="color" value={color} onChange={(e)=>setColor(e.target.value)} style={{marginLeft:8, background:'transparent', border:'none'}} />
         <input type="range" min={1} max={16} value={size} onChange={(e)=>setSize(Number(e.target.value))} />
-        <button className="wb-btn" onClick={clear}>Clear</button>
+        <button className="btn btn--sm btn--outline" onClick={clear}>Clear</button>
       </div>
       <canvas
         ref={canvasRef}

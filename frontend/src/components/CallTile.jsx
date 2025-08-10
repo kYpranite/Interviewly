@@ -71,7 +71,7 @@ export default function CallTile({
       aria-label={`${name} – ${title}`}
     >
       <div className="call-card" onMouseDown={onDown} onTouchStart={onDown}>
-        <button className="close-btn" aria-label="Close" onClick={(e) => { e.stopPropagation(); setHidden(true) }}>×</button>
+        <button className="btn btn--sm btn--ghost" style={{position: 'absolute', top: '8px', right: '8px', width: '24px', height: '24px', padding: '0', minWidth: 'auto'}} aria-label="Close" onClick={(e) => { e.stopPropagation(); setHidden(true) }}>×</button>
         <div className={`speaking-pill ${active ? 'active' : ''}`} aria-hidden={!active}>
           <span className="dot" /> Speaking
         </div>

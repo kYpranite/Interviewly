@@ -6,13 +6,292 @@
 html, body, #root { height: 100%; margin: 0; }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-               Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga" 1, "kern" 1;
+  font-variant-ligatures: common-ligatures;
   color: #fff;
   background: #000; /* your pages override with gradients/dark bg as needed */
 }
 
 /* Optional: heading polish similar to v0 */
 h1, h2 { letter-spacing: -0.02em; }
+
+/* ============================================
+   GLOBAL BUTTON SYSTEM
+   ============================================
+   
+   Usage Examples:
+   <button class="btn">Base Button</button>
+   <button class="btn btn--primary">Primary Button</button>
+   <button class="btn btn--ghost">Ghost Button</button>
+   <button class="btn btn--outline">Outline Button</button>
+   <button class="btn btn--cta">CTA Button (with animations)</button>
+   <button class="btn btn--secondary">Secondary Button</button>
+   <button class="btn btn--danger">Danger Button</button>
+   <button class="btn btn--success">Success Button</button>
+   
+   Sizes:
+   <button class="btn btn--sm">Small Button</button>
+   <button class="btn btn--lg">Large Button</button>
+   
+   States:
+   <button class="btn" disabled>Disabled</button>
+   <button class="btn btn--loading">Loading...</button>
+   ============================================ */
+
+/* Base button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  color: inherit;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+/* Primary button - white background with black text */
+.btn--primary {
+  background: #fff;
+  color: #000;
+  font-weight: 400;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn--primary:hover {
+  background: #f0f0f0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn--primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Ghost button - transparent with subtle border */
+.btn--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-weight: 400;
+}
+
+.btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn--ghost:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Outline button - transparent with more prominent border */
+.btn--outline {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-weight: 400;
+}
+
+.btn--outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.btn--outline:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* CTA button - gradient with enhanced animations */
+.btn--cta {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  font-weight: 400;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn--cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.btn--cta:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Secondary button - subtle dark background */
+.btn--secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-weight: 400;
+}
+
+.btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.btn--secondary:active {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Danger/destructive button */
+.btn--danger {
+  background: rgba(255, 0, 0, 0.18);
+  border-color: rgba(244, 63, 94, 0.25);
+  color: #fecdd3;
+  font-weight: 400;
+}
+
+.btn--danger:hover {
+  background: rgba(244, 63, 94, 0.25);
+  border-color: rgba(244, 63, 94, 0.35);
+  color: #fff;
+}
+
+.btn--danger:active {
+  background: rgba(244, 63, 94, 0.15);
+}
+
+/* Success button */
+.btn--success {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #a7f3d0;
+  font-weight: 400;
+}
+
+.btn--success:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #fff;
+}
+
+.btn--success:active {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+/* Button sizes */
+.btn--sm {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.btn--md {
+  height: 36px;
+  padding: 0 18px;
+  font-size: 14px;
+  gap: 6px;
+}
+
+.btn--lg {
+  height: 44px;
+  padding: 0 24px;
+  font-size: 16px;
+  gap: 10px;
+}
+
+/* Button states */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn--loading {
+  position: relative;
+  color: transparent;
+}
+
+.btn--loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: btn-spin 0.8s linear infinite;
+  color: inherit;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Focus styles for accessibility */
+.btn:focus-visible {
+  outline: 2px solid rgba(102, 126, 234, 0.5);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   GLOBAL BADGE SYSTEM
+   ============================================ */
+
+/* Base badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
+.badge--green {
+  background: rgba(16, 185, 129, 0.18);
+  color: #a7f3d0;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.badge--amber {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.badge--rose {
+  background: rgba(244, 63, 94, 0.18);
+  color: #fecdd3;
+  border-color: rgba(244, 63, 94, 0.25);
+}
+
+.badge--blue {
+  background: rgba(102, 126, 234, 0.18);
+  color: #c7d2fe;
+  border-color: rgba(102, 126, 234, 0.25);
+}
+
+.badge--gray {
+  background: rgba(156, 163, 175, 0.18);
+  color: #d1d5db;
+  border-color: rgba(156, 163, 175, 0.25);
+}
