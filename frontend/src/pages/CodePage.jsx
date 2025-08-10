@@ -17,17 +17,14 @@ export default function CodePage() {
   const [transcript, setTranscript] = useState([]);
 
   const handleEndInterview = () => {
-    if (window.confirm("Are you sure you want to end the interview?")) {
-      // Save the entire transcript to a variable
-      const interviewTranscript = transcript;
-      
-      // Here you can do something with the transcript, such as:
-      interviewTranscript = JSON.stringify(interviewTranscript)
-      console.log("Interview transcript:", interviewTranscript);
-      
-      
-      navigate("/");
-    }
+    // Save the entire transcript to a variable
+    const interviewTranscript = transcript;
+    
+    // Here you can do something with the transcript, such as:
+    const transcriptString = JSON.stringify(interviewTranscript);
+    console.log("Interview transcript:", transcriptString);
+
+    navigate("/dashboard");
   };
 
   useEffect(() => {
@@ -51,7 +48,7 @@ export default function CodePage() {
   useEffect(() => {
     if (secondsLeft === 0) {
       alert("Time's up! The interview has ended.");
-      navigate("/");
+      handleEndInterview();
     }
   }, [secondsLeft, navigate]);
 
@@ -79,7 +76,11 @@ export default function CodePage() {
             <span className="timer" aria-live="polite">{timeDisplay}</span>
             <button 
               className="end-interview-btn" 
-              onClick={handleEndInterview}
+              onClick={() => {
+                  if (window.confirm("Are you sure you want to end the interview?")) {
+                    handleEndInterview();
+                  }
+              }}
               aria-label="End interview"
             >
               End Interview

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip
 } from "recharts";
-import "./code.css";
+import "./Dashboard.css";
 
 /* ---- sample data ---- */
 const SAMPLE_PAST = [
