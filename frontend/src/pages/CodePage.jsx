@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import CodeEditor from "../components/CodeEditor";
@@ -6,6 +6,7 @@ import ProblemPanel from "../components/ProblemPanel";
 import CallTile from "../components/CallTile";
 import VoicePanel from "../components/VoicePanel";
 import { useQuestions } from "../hooks/useFirestore";
+import { evaluateInterview, runCode } from "../api";
 import "./code.css";
 
 export default function CodePage() {
@@ -15,18 +16,67 @@ export default function CodePage() {
   const [secondsLeft, setSecondsLeft] = useState(45 * 60); // 45 minutes
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [transcript, setTranscript] = useState([]);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const codeEditorRef = useRef(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("python");
 
-  const handleEndInterview = () => {
-    if (window.confirm("Are you sure you want to end the interview?")) {
-      // Save the entire transcript to a variable
-      const interviewTranscript = transcript;
+  const handleEndInterview = async () => {
+    if (!window.confirm("Are you sure you want to end the interview?")) {
+      return;
+    }
+
+    setIsEvaluating(true);
+    
+    try {
+      // Get the current code from the editor
+      const currentCode = codeEditorRef.current?.getValue?.() || "";
       
-      // Here you can do something with the transcript, such as:
-      const jsonTranscript = JSON.stringify(interviewTranscript)
-      console.log("Interview transcript:", interviewTranscript);
+      if (!currentCode.trim()) {
+        alert("No code has been written. Please write some code before ending the interview.");
+        setIsEvaluating(false);
+        return;
+      }
+
+      // Run the code to get test results
+      console.log("Running final code execution...");
+      const testResults = await runCode(currentCode, selectedLanguage, question);
       
+      // Prepare question data for evaluation
+      const questionData = {
+        optimal_time_complexity: question?.optimal_time_complexity || "O(n)",
+        optimal_space_complexity: question?.optimal_space_complexity || "O(1)",
+        solution: question?.solution || "No solution provided"
+      };
+
+      // Send evaluation request
+      console.log("Sending evaluation request...");
+      const evaluationResponse = await evaluateInterview({
+        transcript: transcript,
+        codeSubmission: currentCode,
+        language: selectedLanguage,
+        testResults: testResults,
+        question: questionData
+      });
+
+      console.log("Evaluation completed:", evaluationResponse);
+
+      // Navigate to results page with evaluation data
+      navigate("/results", { 
+        state: { 
+          evaluation: evaluationResponse.evaluation,
+          metadata: {
+            question: question?.title || "Unknown Problem",
+            language: selectedLanguage,
+            testResults: testResults,
+            interviewDuration: (45 * 60 - secondsLeft) / 60 // in minutes
+          }
+        } 
+      });
       
-      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error during interview evaluation:", error);
+      alert(`Failed to evaluate interview: ${error.message}`);
+      setIsEvaluating(false);
     }
   };
 
@@ -51,9 +101,9 @@ export default function CodePage() {
   useEffect(() => {
     if (secondsLeft === 0) {
       alert("Time's up! The interview has ended.");
-      navigate("/");
+      handleEndInterview();
     }
-  }, [secondsLeft, navigate]);
+  }, [secondsLeft]);
 
   const timeDisplay = useMemo(() => {
     const m = Math.floor(secondsLeft / 60).toString().padStart(2, "0");
@@ -78,11 +128,12 @@ export default function CodePage() {
           <div className="header-controls">
             <span className="timer" aria-live="polite">{timeDisplay}</span>
             <button 
-              className="btn btn--danger" 
+              className={`btn btn--danger ${isEvaluating ? 'evaluating' : ''}`}
               onClick={handleEndInterview}
+              disabled={isEvaluating}
               aria-label="End interview"
             >
-              End Interview
+              {isEvaluating ? 'Evaluating...' : 'End Interview'}
             </button>
           </div>
         </header>
@@ -100,7 +151,11 @@ export default function CodePage() {
               />
             </div>
             {question ? (
-              <CodeEditor question={question} />
+              <CodeEditor 
+                question={question} 
+                ref={codeEditorRef}
+                onLanguageChange={setSelectedLanguage}
+              />
             ) : (
               <div aria-busy="true" aria-live="polite">Loading question…</div>
             )}
