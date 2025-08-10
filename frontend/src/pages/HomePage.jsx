@@ -1,21 +1,17 @@
 import { Link } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import "./home.css";
 
 export default function HomePage() {
   return (
     <div className="home-page">
-      <a href="#main" className="skip-link">Skip to main content</a>
-      <Navbar />
-
       <main id="main" className="container">
         <section className="hero">
           <div className="hero-inner">
-          <h1 className="hero-title">
-  {"You're not cooked,"}
-  <br className="hide-sm" />
-  <span className="nowrap">{"You're just not prepared"}</span>
-</h1>
+            <h1 className="hero-title">
+              {"You're not cooked,"}
+              <br className="hide-sm" />
+              <span className="nowrap">{"You're just not prepared"}</span>
+            </h1>
 
             <p className="hero-subtitle">
               Prepping for technical coding interviews can feel hard and isolating... but does it have to be?
