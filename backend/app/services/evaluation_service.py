@@ -2,7 +2,7 @@ import json
 from .gemini import analyze_with_gemini
 
 TIME_COMPLEXITY_PROMPT = """You are an expert in algorithm analysis.
-Analyze the following code and output ONLY the time complexity and space complexity in Big-O notation as JSON. ONLY return the output JSON. Do NOT output any text along with it
+Analyze the following code and output ONLY the time complexity and space complexity in Big-O notation as JSON. ONLY return the output JSON. Do NOT output any text along with it.
 
 Instructions:
 1. Carefully examine the provided function.
@@ -11,6 +11,8 @@ Instructions:
 4. State the final time complexity in **Big-O** form.
 5. Also determine the **space complexity**, including auxiliary data structures.
 6. If the complexity depends on multiple parameters (e.g., `n` and `m`), express them clearly.
+7. Report the complexity of the provided code as written (not the theoretically optimal approach).
+8. Do not assume O(1) auxiliary space is always optimal. Many optimal-time solutions trade O(n) space for O(n) time (e.g., using a hash map for Two Sum). Report the actual auxiliary space used by the code.
 
 Format:
 {
@@ -49,7 +51,11 @@ def analyze_complexity(*, api_key: str, code_submission: str, language: str) -> 
         response = analyze_with_gemini(
             api_key=api_key,
             model_name="gemini-1.5-flash",
-            system_prompt="You are an expert algorithm analyst. Analyze code complexity and return only valid JSON in the exact format specified. Do not include any explanatory text, markdown formatting, or code blocks - just the raw JSON object.",
+            system_prompt=(
+                "You are an expert algorithm analyst. Analyze code complexity and return only valid JSON in the exact format specified. "
+                "Do not include any explanatory text, markdown formatting, or code blocks - just the raw JSON object. "
+                "When assessing space, prefer the actual auxiliary usage of the code; do not assume O(1) is optimal where a hash/map is used for optimal time (e.g., Two Sum)."
+            ),
             messages=[{"role": "user", "content": complexity_prompt}],
             temperature=0.1,
             top_p=0.95,
@@ -167,7 +173,27 @@ def evaluate_interview(*, api_key: str, transcript: list, code_submission: str,
     # Get question details
     optimal_time = question.get("optimal_time_complexity", "O(n)")
     optimal_space = question.get("optimal_space_complexity", "O(1)")
+    # Include question metadata and official solution if available
+    q_title = question.get("title", "")
+    q_prompt = question.get("prompt", "")
+    q_constraints = question.get("constraints", []) or []
+    q_args = question.get("args", []) or []
+    q_function = question.get("function", "")
+    q_difficulty = question.get("difficulty", "")
+    q_topics = question.get("topics", []) or []
+
+    # The "solution" field could be a map with approach/code/language
     solution = question.get("solution", "No solution provided")
+    if isinstance(solution, dict):
+        approach = solution.get("approach", "")
+        code = solution.get("code", "")
+        sol_lang = solution.get("language", "")
+        solution_text = (
+            (f"Approach:\n{approach}\n\n" if approach else "") +
+            (f"Reference Code ({sol_lang}):\n```{sol_lang}\n{code}\n```\n" if code else "")
+        ).strip() or "No solution provided"
+    else:
+        solution_text = str(solution)
     
     # Create the evaluation prompt
     evaluation_prompt = f"""
@@ -189,11 +215,20 @@ Optimal Space Complexity: {optimal_space}
 Candidate Time Complexity: {candidate_time}
 Candidate Space Complexity: {candidate_space}
 
-SOLUTION WITH APPROACH:
-{solution}
+QUESTION DETAILS:
+Title: {q_title}
+Difficulty: {q_difficulty}
+Topics: {", ".join(q_topics)}
+Function Signature: {q_function}({", ".join(q_args)})
+Prompt: {q_prompt}
+Constraints:\n{"\n".join(q_constraints)}
+
+OFFICIAL SOLUTION AND APPROACH (for rubric reference):
+{solution_text}
 
 Please evaluate this candidate according to the rubric and return ONLY the JSON output as specified.
 Note: If complexity analysis failed, use your best judgment based on the code structure for the Time/Space Complexity category.
+Scoring constraint: If all tests passed (Passed == Total), you MUST set the "Correctness" score to 5 out of 5 regardless of other factors.
 """
 
     # LeBron James evaluation system prompt
@@ -210,20 +245,20 @@ You will be given:
 Your task: Score the candidate 1–5 in each category (1 = Not Demonstrated, 5 = Excellent) according to the embedded rubric.
 Be critical and brutally honest. Avoid vague praise. Back up every score with direct evidence from transcript, code, or tests.
 
-IMPORTANT: For the Time/Space Complexity category, you must use the following tier rankings to judge the gap between optimal and actual:
+IMPORTANT: For the Time/Space Complexity category, judge against realistic optimal trade-offs rather than assuming O(1) space when that would significantly worsen time complexity (e.g., Two Sum optimal time uses O(n) extra space). Use the following tier rankings to judge the gap between optimal and actual:
 Time Complexity Tier (best to worst):
 O(1) > O(log n) > O(n) > O(n log n) > O(n^2) > O(n^3) > O(2^n) > O(n!)
 Space Complexity Tier (best to worst):
 O(1) > O(log n) > O(n) > O(n log n) > O(n^2) > O(2^n)
 
-HARSH Scoring rules for Time/Space Complexity:
+HARSH Scoring rules for Time/Space Complexity (with trade-off awareness):
 - Score 5: Both time and space match the optimal tier exactly.
 - Score 4: Both are at most **one tier worse** than optimal. (e.g., O(n) → O(n log n) is fine, but O(n) → O(n²) is too slow.)
 - Score 3: One is at most one tier worse and the other is **two tiers worse**, OR both are **two tiers worse**.
 - Score 2: Either is **three tiers worse** than optimal, OR one is two tiers worse and the other is worse than that.
 - Score 1: Either is **four or more tiers worse**, or is at the exponential/factorial range (O(2^n), O(n!)) without clear necessity.
 
-In short: quadratic when optimal is linear is already a serious penalty; cubic when optimal is quadratic is also serious.
+In short: quadratic when optimal is linear is already a serious penalty; cubic when optimal is quadratic is also serious. Prefer solutions that achieve near-optimal time even if they use O(n) extra space when that is the standard optimal trade-off.
 
 RUBRIC:
 
@@ -256,7 +291,7 @@ RUBRIC:
 1: Unreadable or severely unstructured code.
 
 5. Correctness
-5: Passes all tests (public + hidden); handles all edge cases; robust to unexpected inputs (if applicable).
+5: Passes all tests (public + hidden). If 100% tests pass, award 5/5 for this category regardless of other factors. Handles all edge cases; robust to unexpected inputs (if applicable).
 4: Passes most tests; misses only rare or tricky edge cases.
 3: Passes about half the tests; fails common edge cases.
 2: Passes few tests; fails basic cases.

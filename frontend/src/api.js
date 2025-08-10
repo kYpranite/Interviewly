@@ -20,13 +20,13 @@ export async function sendToAI(messages, clientId) {
   return data; // { text }
 }
 
-export async function updateAIContext({ code, language }, clientId) {
+export async function updateAIContext({ code, language, question }, clientId) {
   const headers = { 'Content-Type': 'application/json' };
   if (clientId) headers['X-Client-Id'] = clientId;
   const resp = await fetch('/api/ai/update_context', {
     method: 'POST',
     headers,
-    body: JSON.stringify({ code, language })
+  body: JSON.stringify({ code, language, question })
   });
   const data = await resp.json();
   if (!resp.ok) throw new Error(data?.error || 'Failed to update AI context');

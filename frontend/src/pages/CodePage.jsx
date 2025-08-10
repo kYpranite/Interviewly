@@ -41,13 +41,6 @@ export default function CodePage() {
       console.log("Running final code execution...");
       const testResults = await runCode(currentCode, selectedLanguage, question);
       
-      // Prepare question data for evaluation
-      const questionData = {
-        optimal_time_complexity: question?.optimal_time_complexity || "O(n)",
-        optimal_space_complexity: question?.optimal_space_complexity || "O(1)",
-        solution: question?.solution || "No solution provided"
-      };
-
       // Send evaluation request
       console.log("Sending evaluation request...");
       const evaluationResponse = await evaluateInterview({
@@ -55,7 +48,13 @@ export default function CodePage() {
         codeSubmission: currentCode,
         language: selectedLanguage,
         testResults: testResults,
-        question: questionData
+        // Provide full question context so the evaluator can use prompt, constraints, and official solution
+        question: {
+          ...question,
+          optimal_time_complexity: question?.optimal_time_complexity || "O(n)",
+          optimal_space_complexity: question?.optimal_space_complexity || "O(1)",
+          solution: question?.solution || "No solution provided"
+        }
       });
 
       console.log("Evaluation completed:", evaluationResponse);
