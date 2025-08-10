@@ -3,6 +3,7 @@ import './App.css'
 import CodeEditor from './components/CodeEditor'
 import { useQuestions } from './hooks/useFirestore'
 import ProblemPanel from './components/ProblemPanel'
+import CallTile from './components/CallTile'
 
 function App() {
   const { getRandomQuestion } = useQuestions();
@@ -40,6 +41,7 @@ function App() {
 
   return (
     <div className="app">
+  <CallTile name="Ethan Huang" title="Senior Engineer" />
       <header className="app-header">
         <h1 className="app-title">Technical Interview</h1>
         <span className="timer-badge" aria-live="polite">{timeDisplay}</span>

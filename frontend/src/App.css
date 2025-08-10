@@ -41,6 +41,9 @@
   min-height: calc(100vh - 90px);
 }
 
+/* ensure floating tiles appear above grid */
+.app, .content-grid, .left-panel, .right-panel { position: relative; z-index: 1; }
+
 .left-panel { min-width: 320px; }
 .right-panel { min-width: 0; }
 
