@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STTManager } from '../speechSTT';
 import { speakText, stopSpeaking } from '../speechTTS';
-import { sendToAI } from '../api';
+import { sendToAI, updateAIContext } from '../api';
 import { getClientId } from '../clientId';
 
 // Lightweight styles for testing. Easy to remove.
@@ -36,7 +36,7 @@ const styles = {
 	label: { fontWeight: 600 }
 };
 
-export default function VoicePanel({ onAiSpeakingChange, onTranscriptChange }) {
+export default function VoicePanel({ onAiSpeakingChange, onTranscriptChange, question }) {
 	const stt = useRef(null);
 	const [running, setRunning] = useState(false);
 	const [partial, setPartial] = useState('');
@@ -52,6 +52,18 @@ export default function VoicePanel({ onAiSpeakingChange, onTranscriptChange }) {
 	useEffect(() => {
 		onTranscriptChange?.(turns);
 	}, [turns, onTranscriptChange]);
+
+	// Ensure interviewer has the current question in system prompt ASAP
+	useEffect(() => {
+		(async () => {
+			try {
+				if (!question) return;
+				await updateAIContext({ code: '', language: 'unknown', question }, getClientId());
+			} catch (_) {
+				// ignore background context sync errors
+			}
+		})();
+	}, [question]);
 
 		const turnsRef = useRef(turns);
 		useEffect(() => { turnsRef.current = turns; }, [turns]);
