@@ -4,10 +4,13 @@ import Navbar from "../components/Navbar";
 import CodeEditor from "../components/CodeEditor";
 import ProblemPanel from "../components/ProblemPanel";
 import CallTile from "../components/CallTile";
-import VoicePanel from "../components/VoicePanel";
 import { useQuestions } from "../hooks/useFirestore";
 import { evaluateInterview, runCode } from "../api";
 import "./code.css";
+import { STTManager } from "../speechSTT";
+import { speakText, stopSpeaking } from "../speechTTS";
+import { sendToAI } from "../api";
+import { getClientId } from "../clientId";
 
 export default function CodePage() {
     const { getRandomQuestion } = useQuestions();
@@ -19,6 +22,11 @@ export default function CodePage() {
     const [isEvaluating, setIsEvaluating] = useState(false);
     const codeEditorRef = useRef(null);
     const [selectedLanguage, setSelectedLanguage] = useState("python");
+    const hasFetchedQuestionRef = useRef(false);
+    const sttRef = useRef(null);
+    const speakGenRef = useRef(0);
+    const turnsRef = useRef(transcript);
+    useEffect(() => { turnsRef.current = transcript; }, [transcript]);
 
     // Use useRef to store interview start time (doesn't trigger re-renders)
     const interviewStartTime = useRef(new Date().toISOString());
@@ -26,6 +34,9 @@ export default function CodePage() {
     const handleEndInterview = async () => {
         setIsEvaluating(true);
         try {
+            // Stop any ongoing voice activity immediately
+            try { await sttRef.current?.stop?.(); } catch (_) {}
+            try { await stopSpeaking(); } catch (_) {}
             // Get the current code from the editor
             const currentCode = codeEditorRef.current?.getValue?.() || "";
 
@@ -60,6 +71,8 @@ export default function CodePage() {
             console.log("Evaluation completed:", evaluationResponse);
 
             // Navigate to results page with evaluation data
+            // Clear the persisted question so a new interview gets a new one
+            try { sessionStorage.removeItem('activeQuestion'); } catch {}
             navigate("/results", {
                 state: {
                     evaluation: evaluationResponse.evaluation,
@@ -84,8 +97,29 @@ export default function CodePage() {
         let alive = true;
         (async () => {
             try {
-                const q = await getRandomQuestion();
-                if (alive) setQuestion(q);
+                // First try to restore any active question for this interview
+                if (!hasFetchedQuestionRef.current) {
+                    const stored = sessionStorage.getItem('activeQuestion');
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (alive && parsed) {
+                            setQuestion(parsed);
+                            hasFetchedQuestionRef.current = true;
+                            return;
+                        }
+                    }
+                }
+
+                // If none stored and not yet fetched, fetch once
+                if (!hasFetchedQuestionRef.current) {
+                    const q = await getRandomQuestion();
+                    if (alive) {
+                        setQuestion(q);
+                        hasFetchedQuestionRef.current = true;
+                        // Persist for the duration of the interview
+                        try { sessionStorage.setItem('activeQuestion', JSON.stringify(q)); } catch {}
+                    }
+                }
             } catch (error) {
                 console.error("Error fetching random question:", error);
             }
@@ -117,6 +151,58 @@ export default function CodePage() {
         const s = (secondsLeft % 60).toString().padStart(2, "0");
         return `${m}:${s} remaining`;
     }, [secondsLeft]);
+
+    // Auto-start STT/TTS once a question is established
+    useEffect(() => {
+        let mounted = true;
+        if (!question || sttRef.current) return;
+        const stt = new STTManager();
+        sttRef.current = stt;
+        stt.onRunningChange = (v) => { if (mounted) setAiSpeaking((prev) => prev && v ? prev : prev && !v ? false : prev); };
+        // Avoid echo loop: when partial user speech is detected, stop TTS immediately
+        stt.onPartial = async (text) => {
+            if (text && text.trim()) {
+                speakGenRef.current += 1;
+                setAiSpeaking(false);
+                try { await stopSpeaking(); } catch (_) {}
+            }
+        };
+        stt.onFinalResult = async (text) => {
+            if (!mounted) return;
+            setTranscript((t) => [...t, { role: 'user', content: text }]);
+            try {
+                const hist = turnsRef.current;
+                const { text: aiText } = await sendToAI([...hist, { role: 'user', content: text }], getClientId());
+                const out = (aiText || '').trim();
+                if (!mounted) return;
+                setTranscript((t) => [...t, { role: 'ai', content: out }]);
+                if (out) {
+                    const myGen = ++speakGenRef.current;
+                    await new Promise((resolve) => {
+                        speakText(out, {
+                            onStart: () => { if (speakGenRef.current === myGen) setAiSpeaking(true); },
+                            onEnd: () => { if (speakGenRef.current === myGen) setAiSpeaking(false); resolve(); },
+                            onError: () => { if (speakGenRef.current === myGen) setAiSpeaking(false); resolve(); },
+                        });
+                    });
+                } else {
+                    setAiSpeaking(false);
+                }
+            } catch (e) {
+                console.error('AI or TTS error', e);
+                setAiSpeaking(false);
+            }
+        };
+        (async () => {
+            try { await stt.start('en-US'); } catch (e) { console.error('Failed to start STT', e); }
+        })();
+        return () => {
+            mounted = false;
+            try { sttRef.current?.stop?.(); } catch (_) {}
+            sttRef.current = null;
+            try { stopSpeaking(); } catch (_) {}
+        };
+    }, [question]);
 
     return (
         <div className="code-page">
@@ -163,11 +249,7 @@ export default function CodePage() {
                     </aside>
                     <section className="right">
                         <div style={{ marginBottom: "0.75rem" }}>
-                            <VoicePanel
-                                onAiSpeakingChange={setAiSpeaking}
-                                onTranscriptChange={setTranscript}
-                                question={question}
-                            />
+                            {/* VoicePanel removed; STT/TTS now auto-run in background */}
                         </div>
                         {question ? (
                             <CodeEditor

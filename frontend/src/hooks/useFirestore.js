@@ -2,40 +2,42 @@ import { collection, getDocs, query, limit, orderBy, startAt, addDoc, serverTime
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { useAuth } from './useAuth';
+import { useCallback, useMemo } from 'react';
 
 export function useQuestions() {
-  const getRandomQuestion = async () => {
+  // Stable function identity to avoid re-running effects that depend on these
+  const getRandomQuestion = useCallback(async () => {
     try {
       // Get total count of questions first
       const questionsRef = collection(db, 'questions');
       const snapshot = await getDocs(questionsRef);
       const totalQuestions = snapshot.size;
-      
+
       if (totalQuestions === 0) {
         throw new Error('No questions found');
       }
-      
+
       // Generate random index
       const randomIndex = Math.floor(Math.random() * totalQuestions);
-      
+
       // Get all questions and return the random one
       const questions = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      
+
       return questions[randomIndex];
     } catch (error) {
       console.error('Error getting random question:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const getQuestionById = async (questionId) => {
+  const getQuestionById = useCallback(async (questionId) => {
     try {
       const questionRef = doc(db, 'questions', questionId);
       const questionDoc = await getDoc(questionRef);
-      
+
       if (questionDoc.exists()) {
         return {
           id: questionDoc.id,
@@ -48,9 +50,10 @@ export function useQuestions() {
       console.error('Error getting question by ID:', error);
       throw error;
     }
-  };
+  }, []);
 
-  return { getRandomQuestion, getQuestionById };
+  // Return a stable object reference as well
+  return useMemo(() => ({ getRandomQuestion, getQuestionById }), [getRandomQuestion, getQuestionById]);
 }
 
 export function useSessions() {
@@ -70,9 +73,8 @@ export function useSessions() {
       // Create storage reference
       const storageRef = ref(storage, `transcripts/${user.uid}/${sessionId}.json`);
       
-      // Upload file
-      await uploadBytes(storageRef, blob);
-      
+  // Upload file with explicit content type
+await uploadBytes(storageRef, blob);      
       // Get download URL
       const downloadURL = await getDownloadURL(storageRef);
       return downloadURL;

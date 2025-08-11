@@ -59,6 +59,12 @@ import re
 from collections import Counter
 
 def deep_equal(a, b):
+    # Handle case where expected is a single-element list and got is the element
+    if isinstance(a, list) and len(a) == 1 and not isinstance(b, list):
+        return deep_equal(a[0], b)
+    if isinstance(b, list) and len(b) == 1 and not isinstance(a, list):
+        return deep_equal(a, b[0])
+    
     if type(a) != type(b):
         return False
     if isinstance(a, (int, str, bool)) or a is None:

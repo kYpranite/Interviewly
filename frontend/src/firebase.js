@@ -7,7 +7,8 @@ const firebaseConfig = {
   apiKey: "AIzaSyD7yqceXImF0RUHODrD6jcYCIZAUM1GkaE",
   authDomain: "interviewly-cb4ad.firebaseapp.com",
   projectId: "interviewly-cb4ad",
-  storageBucket: "interviewly-cb4ad.firebasestorage.app",
+  // Firebase Storage bucket must use the appspot.com bucket name (not the download domain)
+  storageBucket: "interviewly-cb4ad.appspot.com",
   messagingSenderId: "161349235243",
   appId: "1:161349235243:web:23f23c8c91e632e97df06e",
   measurementId: "G-VM97RCV935",
