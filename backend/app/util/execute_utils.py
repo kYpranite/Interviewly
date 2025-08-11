@@ -128,7 +128,32 @@ CHECKERS = {
 """
 
 def prep_code(code):
-    combined_source = check_function + "\n" + code.strip() + "\n" + RUNNER_PY
+    # Check if the code uses typing annotations and add necessary imports
+    typing_imports = ""
+    typing_needed = []
+    
+    # Check for common typing annotations
+    if "List[" in code:
+        typing_needed.append("List")
+    if "Dict[" in code:
+        typing_needed.append("Dict")
+    if "Set[" in code:
+        typing_needed.append("Set")
+    if "Tuple[" in code:
+        typing_needed.append("Tuple")
+    if "Optional[" in code:
+        typing_needed.append("Optional")
+    if "Union[" in code:
+        typing_needed.append("Union")
+    if "Any" in code and "Any[" not in code:  # Avoid matching Any[...]
+        typing_needed.append("Any")
+    
+    # Only add imports if typing is needed and not already imported
+    if typing_needed and "from typing import" not in code and "import typing" not in code:
+        typing_imports = f"from typing import {', '.join(typing_needed)}\n"
+    
+    # Combine the code with necessary imports, checker functions, and runner
+    combined_source = typing_imports + check_function + "\n" + code.strip() + "\n" + RUNNER_PY
     return combined_source
 
 
